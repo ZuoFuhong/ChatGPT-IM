@@ -20,7 +20,7 @@ func (*groupUserService) ListByUserId(ctx context.Context, appId, userId int64) 
 }
 
 // GetUsers 获取群组的所有用户信息
-func (*groupUserService) GetUsers(ctx context.Context, appId, groupId int64) ([]model.GroupUser, error) {
+func (*groupUserService) GetUsers(appId, groupId int64) ([]model.GroupUser, error) {
 	users, err := dao.GroupUserDao.ListUser(appId, groupId)
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func (*groupUserService) GetUsers(ctx context.Context, appId, groupId int64) ([]
 }
 
 // AddUser 给群组添加用户
-func (*groupUserService) AddUser(ctx context.Context, appId, groupId, userId int64, label, extra string) error {
+func (*groupUserService) AddUser(appId, groupId, userId int64, label, extra string) error {
 	err := dao.GroupUserDao.Add(appId, groupId, userId, label, extra)
 	if err != nil {
 		return err
@@ -40,7 +40,7 @@ func (*groupUserService) AddUser(ctx context.Context, appId, groupId, userId int
 }
 
 // DeleteUser 从群组移除用户
-func (*groupUserService) DeleteUser(ctx context.Context, appId, groupId, userId int64) error {
+func (*groupUserService) DeleteUser(appId, groupId, userId int64) error {
 	err := dao.GroupUserDao.Delete(appId, groupId, userId)
 	if err != nil {
 		return err
