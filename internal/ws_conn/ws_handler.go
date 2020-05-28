@@ -8,15 +8,6 @@ import (
 	"strconv"
 )
 
-func StartServer(addr string) {
-	http.HandleFunc("/ws", wsHandler)
-	log.Print("websocket server start run in ", addr)
-	err := http.ListenAndServe(addr, nil)
-	if err != nil {
-		log.Panic(err)
-	}
-}
-
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 65536,
@@ -26,7 +17,7 @@ var upgrader = websocket.Upgrader{
 }
 
 // 协议升级，Hold连接
-func wsHandler(w http.ResponseWriter, r *http.Request) {
+func WSHandler(w http.ResponseWriter, r *http.Request) {
 	appId, _ := strconv.ParseInt(r.Header.Get("app_id"), 10, 64)
 	userId, _ := strconv.ParseInt(r.Header.Get("user_id"), 10, 64)
 	deviceId, _ := strconv.ParseInt(r.Header.Get("device_id"), 10, 64)

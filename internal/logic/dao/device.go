@@ -10,10 +10,11 @@ type deviceDao struct{}
 
 var DeviceDao = new(deviceDao)
 
-// Insert 插入一条设备信息
-func (*deviceDao) Add(device model.Device) error {
-	_, err := db.Cli.Exec(`insert into device(device_id,app_id,type,brand,model,system_version,sdk_version,status,conn_addr,conn_fd) 
-		values(?,?,?,?,?,?,?,?,?)`,
+// 插入一条设备信息
+func (*deviceDao) Add(device *model.Device) error {
+	_, err := db.Cli.Exec(`
+		INSERT INTO device(device_id,app_id,type,brand,model,system_version,sdk_version,status,conn_addr,conn_fd) 
+		VALUES(?,?,?,?,?,?,?,?,?)`,
 		device.DeviceId, device.AppId, device.Type, device.Brand, device.Model, device.SystemVersion, device.SDKVersion, device.Status, "", 0)
 	return err
 }
@@ -24,8 +25,9 @@ func (*deviceDao) Get(deviceId int64) (*model.Device, error) {
 		DeviceId: deviceId,
 	}
 	row := db.Cli.QueryRow(`
-		select app_id,user_id,type,brand,model,system_version,sdk_version,status,conn_addr,conn_fd,create_time,update_time
-		from device where device_id = ?`, deviceId)
+		SELECT app_id,user_id,type,brand,model,system_version,sdk_version,status,conn_addr,conn_fd,create_time,update_time
+		FROM device
+		WHERE device_id = ?`, deviceId)
 	err := row.Scan(&device.AppId, &device.UserId, &device.Type, &device.Brand, &device.Model, &device.SystemVersion, &device.SDKVersion,
 		&device.Status, &device.ConnAddr, &device.ConnFd, &device.CreateTime, &device.UpdateTime)
 	if err != nil && err != sql.ErrNoRows {
@@ -39,10 +41,14 @@ func (*deviceDao) Get(deviceId int64) (*model.Device, error) {
 	return &device, err
 }
 
-// ListUserOnline 查询用户所有的在线设备
+// 查询用户所有的在线设备
 func (*deviceDao) ListOnlineByUserId(appId, userId int64) ([]model.Device, error) {
-	rows, err := db.Cli.Query(
-		`select device_id,type,brand,model,system_version,sdk_version,status,conn_addr,conn_fd,create_time,update_time from device where app_id = ? and user_id = ? and status = ?`,
+	rows, err := db.Cli.Query(`
+		SELECT device_id,type,brand,model,system_version,sdk_version,status,conn_addr,conn_fd,create_time,update_time 
+		FROM device 
+		WHERE app_id = ? 
+		AND user_id = ?
+		AND status = ?`,
 		appId, userId, model.DeviceOnLine)
 	if err != nil {
 		return nil, err
@@ -76,7 +82,7 @@ func (*deviceDao) UpdateStatus(deviceId int64, status int) error {
 	return e
 }
 
-// Upgrade 升级设备
+// 升级设备
 func (*deviceDao) Upgrade(deviceId int64, systemVersion, sdkVersion string) error {
 	_, err := db.Cli.Exec("update device set system_version = ?,sdk_version = ? where device_id = ? ",
 		systemVersion, sdkVersion, deviceId)

@@ -6,7 +6,7 @@ import "time"
 type User struct {
 	Id         int64     `json:"-"`          // 用户id
 	AppId      int64     `json:"app_id"`     // app_id
-	UserId     int64     `json:"user_id"`    // 手机号
+	UserId     int64     `json:"user_id"`    // 唯一用户ID
 	Nickname   string    `json:"nickname"`   // 昵称
 	Sex        int32     `json:"sex"`        // 性别，1:男；2:女
 	AvatarUrl  string    `json:"avatar_url"` // 用户头像

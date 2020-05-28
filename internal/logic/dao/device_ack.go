@@ -8,13 +8,13 @@ var DeviceAckDao = new(deviceAckDao)
 
 // 添加设备同步序列号记录
 func (*deviceAckDao) Add(deviceId int64, ack int64) error {
-	_, err := db.Cli.Exec("insert into device_ack(device_id,ack) values(?,?)", deviceId, ack)
+	_, err := db.Cli.Exec("INSERT INTO device_ack(device_id,ack) VALUES (?,?)", deviceId, ack)
 	return err
 }
 
 // 获取设备同步序列号
 func (*deviceAckDao) Get(deviceId int64) (int64, error) {
-	row := db.Cli.QueryRow("select ack from device_ack where device_id = ?", deviceId)
+	row := db.Cli.QueryRow("SELECT ack FROM device_ack WHERE device_id = ?", deviceId)
 	var ack int64
 	err := row.Scan(&ack)
 	return ack, err

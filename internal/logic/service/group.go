@@ -1,10 +1,10 @@
 package service
 
 import (
-	"context"
-	"errors"
 	"go-IM/internal/logic/dao"
 	"go-IM/internal/logic/model"
+	"go-IM/pkg/errs"
+	"go-IM/pkg/util"
 )
 
 type groupService struct{}
@@ -12,97 +12,70 @@ type groupService struct{}
 var GroupService = new(groupService)
 
 // Get 获取群组信息
-func (*groupService) Get(ctx context.Context, appId, groupId int64) (*model.Group, error) {
+func (*groupService) Get(appId, groupId int64) *model.Group {
 	group, err := dao.GroupDao.Get(appId, groupId)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	if group == nil {
-		return nil, nil
-	}
-	return group, nil
+	return group
 }
 
 // Create 创建群组
-func (*groupService) Create(ctx context.Context, group model.Group) error {
+func (*groupService) Create(group *model.Group) int64 {
+	sf, _ := util.NewSnowflake(0, 0)
+	groupId := sf.NextVal()
+	group.GroupId = groupId
 	affected, err := dao.GroupDao.Add(group)
 	if err != nil {
-		return err
+		panic(err)
 	}
-
 	if affected == 0 {
-		return errors.New("group already exist")
+		panic(errs.NewHttpErr(errs.Group, "Group already exist"))
 	}
-	return nil
+	return groupId
 }
 
 // Update 更新群组
-func (*groupService) Update(ctx context.Context, group model.Group) error {
+func (*groupService) Update(group *model.Group) {
 	err := dao.GroupDao.Update(group.AppId, group.GroupId, group.Name, group.Introduction, group.Extra)
-	return err
+	if err != nil {
+		panic(err)
+	}
 }
 
 // AddUser 给群组添加用户
-func (*groupService) AddUser(ctx context.Context, appId, groupId, userId int64, label, extra string) error {
-	group, err := GroupService.Get(ctx, appId, groupId)
-	if err != nil {
-		return err
-	}
+func (*groupService) AddUser(groupUser *model.GroupUser) {
+	group := GroupService.Get(groupUser.AppId, groupUser.GroupId)
 	if group == nil {
-		return errors.New("group not exist")
+		panic(errs.NewHttpErr(errs.Group, "Group not exist"))
 	}
-
-	user, err := UserService.Get(appId, userId)
-	if err != nil {
-		return err
-	}
+	user := UserService.Get(groupUser.AppId, groupUser.UserId)
 	if user == nil {
-		return errors.New("user not exist")
+		panic(errs.NewHttpErr(errs.Group, "user not exist"))
 	}
-
 	if group.Type == model.GroupTypeGroup {
-		err = GroupUserService.AddUser(ctx, appId, groupId, userId, label, extra)
-		if err != nil {
-			return err
-		}
+		GroupUserService.AddUser(groupUser)
 	}
-	return nil
 }
 
 // UpdateUser 更新群组用户
-func (*groupService) UpdateUser(ctx context.Context, appId, groupId, userId int64, label, extra string) error {
-	group, err := GroupService.Get(ctx, appId, groupId)
-	if err != nil {
-		return err
-	}
-
+func (*groupService) UpdateUser(groupUser *model.GroupUser) {
+	group := GroupService.Get(groupUser.AppId, groupUser.GroupId)
 	if group == nil {
-		return errors.New("group not exist")
+		panic(errs.NewHttpErr(errs.Group, "Group not exist"))
 	}
-
 	if group.Type == model.GroupTypeGroup {
-		err = GroupUserService.Update(ctx, appId, groupId, userId, label, extra)
-		if err != nil {
-			return err
-		}
+		GroupUserService.Update(groupUser)
 	}
-	return nil
 }
 
 // DeleteUser 删除用户群组
-func (*groupService) DeleteUser(ctx context.Context, appId, groupId, userId int64) error {
-	group, err := GroupService.Get(ctx, appId, groupId)
-	if err != nil {
-		return err
-	}
+func (*groupService) DeleteUser(appId, groupId, userId int64) {
+	group := GroupService.Get(appId, groupId)
 	if group == nil {
-		return errors.New("group not exist")
+		panic(errs.NewHttpErr(errs.Group, "Group not exist"))
 	}
 	if group.Type == model.GroupTypeGroup {
-		err = GroupUserService.DeleteUser(ctx, appId, groupId, userId)
-		if err != nil {
-			return err
-		}
+		GroupUserService.DeleteUser(appId, groupId, userId)
 	}
-	return nil
 }

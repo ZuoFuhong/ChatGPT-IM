@@ -14,7 +14,7 @@ var MessageService = new(messageService)
 
 // Add 添加消息
 func (*messageService) Add(message model.Message) error {
-	return dao.MessageDao.Add("message", message)
+	return dao.MessageDao.Add(message)
 }
 
 // 查询消息
@@ -82,10 +82,7 @@ func (*messageService) SendToFriend(sender defs.Sender, req defs.SendMessageReq)
 
 // SendToGroup 消息发送至群组（使用写扩散）
 func (*messageService) SendToGroup(sender defs.Sender, req defs.SendMessageReq) error {
-	users, err := GroupUserService.GetUsers(sender.AppId, req.ReceiverId)
-	if err != nil {
-		return err
-	}
+	users := GroupUserService.GetUsers(sender.AppId, req.ReceiverId)
 
 	if sender.SenderType == defs.SenderType_ST_USER && !IsInGroup(users, sender.SenderId) {
 		log.Print(sender.SenderId, req.ReceiverId, "不在群组内")
@@ -94,7 +91,7 @@ func (*messageService) SendToGroup(sender defs.Sender, req defs.SendMessageReq) 
 
 	// 将消息发送给群组用户，使用写扩散
 	for _, user := range users {
-		err = MessageService.SendToUser(sender, user.UserId, 0, req)
+		err := MessageService.SendToUser(sender, user.UserId, 0, req)
 		if err != nil {
 			return err
 		}

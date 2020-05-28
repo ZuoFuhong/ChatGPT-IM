@@ -10,9 +10,9 @@ type groupDao struct{}
 
 var GroupDao = new(groupDao)
 
-// Get 获取群组信息
+// 获取群组信息
 func (*groupDao) Get(appId, groupId int64) (*model.Group, error) {
-	row := db.Cli.QueryRow("select name,introduction,user_num,type,extra,create_time,update_time from `group` where app_id = ? and group_id = ?",
+	row := db.Cli.QueryRow("SELECT name,introduction,user_num,type,extra,create_time,update_time FROM `group` WHERE app_id = ? AND group_id = ?",
 		appId, groupId)
 	group := model.Group{
 		AppId:   appId,
@@ -29,9 +29,9 @@ func (*groupDao) Get(appId, groupId int64) (*model.Group, error) {
 	return &group, nil
 }
 
-// Insert 插入一条群组
-func (*groupDao) Add(group model.Group) (int64, error) {
-	result, err := db.Cli.Exec("insert ignore into `group`(app_id,group_id,name,introduction,type,extra) value(?,?,?,?,?,?)",
+// 插入一条群组
+func (*groupDao) Add(group *model.Group) (int64, error) {
+	result, err := db.Cli.Exec("INSERT IGNORE INTO `group`(app_id,group_id,name,introduction,type,extra) VALUES (?,?,?,?,?,?)",
 		group.AppId, group.GroupId, group.Name, group.Introduction, group.Type, group.Extra)
 	if err != nil {
 		return 0, err
@@ -43,23 +43,23 @@ func (*groupDao) Add(group model.Group) (int64, error) {
 	return num, nil
 }
 
-// Update 更新群组信息
+// 更新群组信息
 func (*groupDao) Update(appId, groupId int64, name, introduction, extra string) error {
-	_, err := db.Cli.Exec("update `group` set name = ?,introduction = ?,extra = ? where app_id = ? and group_id = ?",
+	_, err := db.Cli.Exec("UPDATE `group` SET name = ?,introduction = ?,extra = ? WHERE app_id = ? AND group_id = ?",
 		name, introduction, extra, appId, groupId)
 	return err
 }
 
-// AddUserNum 更新群组信息
+// 更新群组信息
 func (*groupDao) AddUserNum(appId, groupId int64, userNum int) error {
-	_, err := db.Cli.Exec("update `group` set user_num = user_num + ? where app_id = ? and group_id = ?",
+	_, err := db.Cli.Exec("UPDATE `group` SET user_num = user_num + ? WHERE app_id = ? AND group_id = ?",
 		userNum, appId, groupId)
 	return err
 }
 
-// UpdateUserNum 更新群组群成员人数
+// 更新群组群成员人数
 func (*groupDao) UpdateUserNum(appId, groupId, userNum int64) error {
-	_, err := db.Cli.Exec("update `group` set user_num = user_num + ? where app_id = ? and group_id = ?",
+	_, err := db.Cli.Exec("UPDATE `group` SET user_num = user_num + ? WHERE app_id = ? AND group_id = ?",
 		userNum, appId, groupId)
 	return err
 }

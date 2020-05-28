@@ -10,13 +10,13 @@ type groupUserDao struct{}
 
 var GroupUserDao = new(groupUserDao)
 
-// ListByUser 获取用户加入的群组信息
+// 获取用户加入的群组信息
 func (*groupUserDao) ListByUserId(appId, userId int64) ([]model.Group, error) {
 	rows, err := db.Cli.Query(
-		"select g.group_id,g.name,g.introduction,g.user_num,g.type,g.extra,g.create_time,g.update_time "+
-			"from group_user u "+
-			"left join `group` g on u.app_id = g.app_id and u.group_id = g.group_id "+
-			"where u.app_id = ? and u.user_id = ?",
+		"SELECT g.group_id,g.name,g.introduction,g.user_num,g.type,g.extra,g.create_time,g.update_time "+
+			"FROM group_user u "+
+			"LEFT JOIN `group` g on u.app_id = g.app_id and u.group_id = g.group_id "+
+			"WHERE u.app_id = ? and u.user_id = ?",
 		appId, userId)
 	if err != nil {
 		return nil, err
@@ -36,9 +36,10 @@ func (*groupUserDao) ListByUserId(appId, userId int64) ([]model.Group, error) {
 // ListGroupUser 获取群组用户信息
 func (*groupUserDao) ListUser(appId, groupId int64) ([]model.GroupUser, error) {
 	rows, err := db.Cli.Query(`
-		select user_id,label,extra,create_time,update_time 
-		from group_user
-		where app_id = ? and group_id = ?`, appId, groupId)
+		SELECT user_id,label,extra,create_time,update_time 
+		FROM group_user
+		WHERE app_id = ?
+		AND group_id = ?`, appId, groupId)
 	if err != nil {
 		return nil, err
 	}
@@ -57,14 +58,14 @@ func (*groupUserDao) ListUser(appId, groupId int64) ([]model.GroupUser, error) {
 	return groupUsers, nil
 }
 
-// GetGroupUser 获取群组用户信息,用户不存在返回nil
+// 获取群组用户信息,用户不存在返回nil
 func (*groupUserDao) Get(appId, groupId, userId int64) (*model.GroupUser, error) {
 	var groupUser = model.GroupUser{
 		AppId:   appId,
 		GroupId: groupId,
 		UserId:  userId,
 	}
-	err := db.Cli.QueryRow("select label,extra from group_user where app_id = ? and group_id = ? and user_id = ?",
+	err := db.Cli.QueryRow("SELECT label,extra FROM group_user WHERE app_id = ? AND group_id = ? AND user_id = ?",
 		appId, groupId, userId).
 		Scan(&groupUser.Label, &groupUser.Extra)
 	if err != nil && err != sql.ErrNoRows {
@@ -78,9 +79,9 @@ func (*groupUserDao) Get(appId, groupId, userId int64) (*model.GroupUser, error)
 	return &groupUser, nil
 }
 
-// Add 将用户添加到群组
+// 将用户添加到群组
 func (*groupUserDao) Add(appId, groupId, userId int64, label, extra string) error {
-	_, err := db.Cli.Exec("insert ignore into group_user(app_id,group_id,user_id,label,extra) values(?,?,?,?,?)",
+	_, err := db.Cli.Exec("INSERT IGNORE INTO group_user(app_id,group_id,user_id,label,extra) VALUES (?,?,?,?,?)",
 		appId, groupId, userId, label, extra)
 	if err != nil {
 		return err
@@ -88,16 +89,16 @@ func (*groupUserDao) Add(appId, groupId, userId int64, label, extra string) erro
 	return nil
 }
 
-// Delete 将用户从群组删除
+// 将用户从群组删除
 func (d *groupUserDao) Delete(appId int64, groupId int64, userId int64) error {
-	_, err := db.Cli.Exec("delete from group_user where app_id = ? and group_id = ? and user_id = ?",
+	_, err := db.Cli.Exec("DELETE FROM group_user WHERE app_id = ? AND group_id = ? AND user_id = ?",
 		appId, groupId, userId)
 	return err
 }
 
-// Update 更新用户群组信息
+// 更新用户群组信息
 func (*groupUserDao) Update(appId, groupId, userId int64, label string, extra string) error {
-	_, err := db.Cli.Exec("update group_user set label = ?,extra = ? where app_id = ? and group_id = ? and user_id = ?",
+	_, err := db.Cli.Exec("UPDATE group_user SET label = ?,extra = ? WHERE app_id = ? AND group_id = ? AND user_id = ?",
 		label, extra, appId, groupId, userId)
 	return err
 }

@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"fmt"
 	"go-IM/internal/logic/db"
 	"go-IM/internal/logic/model"
 )
@@ -11,9 +10,11 @@ type messageDao struct{}
 var MessageDao = new(messageDao)
 
 // Add 插入一条消息
-func (*messageDao) Add(tableName string, message model.Message) error {
-	sql := fmt.Sprintf(`insert into %s(app_id,object_type,object_id,request_id,sender_type,sender_id,sender_device_id,receiver_type,receiver_id,to_user_ids,type,content,seq,send_time) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, tableName)
-	_, err := db.Cli.Exec(sql, message.AppId, message.ObjectType, message.ObjectId, message.RequestId, message.SenderType, message.SenderId, message.SenderDeviceId,
+func (*messageDao) Add(message model.Message) error {
+	_, err := db.Cli.Exec(`
+		INSERT INTO message(app_id,object_type,object_id,request_id,sender_type,sender_id,sender_device_id,receiver_type,receiver_id,to_user_ids,type,content,seq,send_time) 
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+	`, message.AppId, message.ObjectType, message.ObjectId, message.RequestId, message.SenderType, message.SenderId, message.SenderDeviceId,
 		message.ReceiverType, message.ReceiverId, message.ToUserIds, message.Type, message.Content, message.Seq, message.SendTime)
 	return err
 }

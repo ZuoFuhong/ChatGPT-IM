@@ -1,9 +1,10 @@
 package service
 
 import (
-	"errors"
 	"go-IM/internal/logic/dao"
 	"go-IM/internal/logic/model"
+	"go-IM/pkg/errs"
+	"go-IM/pkg/util"
 )
 
 const (
@@ -15,26 +16,27 @@ type deviceService struct{}
 
 var DeviceService = new(deviceService)
 
-func (*deviceService) Register(device model.Device) (int64, error) {
+func (*deviceService) Register(device *model.Device) (int64, error) {
 	app, err := AppService.Get(device.AppId)
 	if err != nil {
-		return 0, err
+		panic(err)
 	}
 	if app == nil {
-		return 0, errors.New("app not found")
+		panic(errs.NewHttpErr(errs.App, "App not found"))
 	}
 
-	// todo: 自增ID
-	deviceId := int64(0)
+	// 唯一的设备ID
+	sf, _ := util.NewSnowflake(0, 0)
+	deviceId := sf.NextVal()
 
 	device.DeviceId = deviceId
 	err = dao.DeviceDao.Add(device)
 	if err != nil {
-		return 0, err
+		panic(err)
 	}
 	err = dao.DeviceAckDao.Add(device.DeviceId, 0)
 	if err != nil {
-		return 0, err
+		panic(err)
 	}
 	return deviceId, nil
 }

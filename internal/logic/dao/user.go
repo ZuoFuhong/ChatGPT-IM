@@ -10,9 +10,9 @@ type userDao struct{}
 
 var UserDao = new(userDao)
 
-// Add 插入一条用户信息
-func (*userDao) Add(user model.User) (int64, error) {
-	result, err := db.Cli.Exec("insert ignore into user(app_id,user_id,nickname,sex,avatar_url,extra) values(?,?,?,?,?,?)",
+// 插入一条用户信息
+func (*userDao) Add(user *model.User) (int64, error) {
+	result, err := db.Cli.Exec("INSERT IGNORE INTO user(app_id,user_id,nickname,sex,avatar_url,extra) VALUES (?,?,?,?,?,?)",
 		user.AppId, user.UserId, user.Nickname, user.Sex, user.AvatarUrl, user.Extra)
 	if err != nil {
 		return 0, err
@@ -25,9 +25,9 @@ func (*userDao) Add(user model.User) (int64, error) {
 	return affected, nil
 }
 
-// Get 获取用户信息
+// 获取用户信息
 func (*userDao) Get(appId, userId int64) (*model.User, error) {
-	row := db.Cli.QueryRow("select nickname,sex,avatar_url,extra,create_time,update_time from user where app_id = ? and user_id = ?",
+	row := db.Cli.QueryRow("SELECT nickname,sex,avatar_url,extra,create_time,update_time FROM user WHERE app_id = ? AND user_id = ?",
 		appId, userId)
 	user := model.User{
 		AppId:  appId,
@@ -46,9 +46,9 @@ func (*userDao) Get(appId, userId int64) (*model.User, error) {
 	return &user, err
 }
 
-// Update 更新用户信息
-func (*userDao) Update(user model.User) error {
-	_, err := db.Cli.Exec("update user set nickname = ?,sex = ?,avatar_url = ?,extra = ? where app_id = and user_id = ?",
+// 更新用户信息
+func (*userDao) Update(user *model.User) error {
+	_, err := db.Cli.Exec("UPDATE user SET nickname = ?,sex = ?,avatar_url = ?,extra = ? WHERE app_id = ? AND user_id = ?",
 		user.Nickname, user.Sex, user.AvatarUrl, user.Extra, user.AppId, user.UserId)
 	if err != nil {
 		return err
