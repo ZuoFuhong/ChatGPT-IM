@@ -11,10 +11,12 @@ var SeqService = new(seqService)
 
 // 获取下一个序列号
 func (*seqService) GetUserNext(appId, userId int64) (int64, error) {
-	return dao.MessageDao.GetMaxByObjectId(appId, model.MessageObjectTypeUser, userId)
+	maxSeq, e := dao.MessageDao.GetMaxByObjectId(appId, model.MessageObjectTypeUser, userId)
+	return maxSeq + 1, e
 }
 
 // 获取下一个序列号
 func (*seqService) GetGroupNext(appId, groupId int64) (int64, error) {
-	return dao.MessageDao.GetMaxByObjectId(appId, model.MessageObjectTypeGroup, groupId)
+	maxSeq, e := dao.MessageDao.GetMaxByObjectId(appId, model.MessageObjectTypeGroup, groupId)
+	return maxSeq + 1, e
 }

@@ -41,8 +41,8 @@ func (*group) Create(w http.ResponseWriter, r *http.Request) {
 func (*group) Info(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	appId, _ := strconv.ParseInt(vars["aid"], 10, 64)
-	userId, _ := strconv.ParseInt(vars["uid"], 10, 64)
-	group := service.UserService.Get(appId, userId)
+	groupId, _ := strconv.ParseInt(vars["gid"], 10, 64)
+	group := service.GroupService.Get(appId, groupId)
 
 	bytes, _ := json.Marshal(group)
 	_, _ = w.Write(bytes)

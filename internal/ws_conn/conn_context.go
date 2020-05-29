@@ -8,6 +8,7 @@ import (
 	"go-IM/pkg/defs"
 	"go-IM/pkg/util"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -20,12 +21,9 @@ type ConnContext struct {
 	UserId   int64
 }
 
-func NewConnContext(conn *websocket.Conn, appId, deviceId, userId int64) *ConnContext {
+func NewConnContext(conn *websocket.Conn) *ConnContext {
 	return &ConnContext{
-		Conn:     conn,
-		AppId:    appId,
-		DeviceId: deviceId,
-		UserId:   userId,
+		Conn: conn,
 	}
 }
 
@@ -56,25 +54,60 @@ func (ctx *ConnContext) HandlePackage(data []byte) {
 		return
 	}
 	switch input.Type {
+	case defs.PackageType_SignIn:
+		ctx.SignIn(input)
 	case defs.PackageType_SYNC:
 		ctx.Sync(input)
 	case defs.PackageType_HEARTBEAT:
 		ctx.Heartbeat(input)
-	case defs.PackageType_MESSAGE:
+	case defs.PackageType_MESSAGE_ACK:
 		ctx.MessageACK(input)
 	}
 }
 
-// 离线消息同步
-func (ctx *ConnContext) Sync(input defs.Input) {
-	var sync defs.SyncInput
-	err := json.Unmarshal(input.Data, &sync)
+// 登录鉴权
+func (ctx *ConnContext) SignIn(input defs.Input) {
+	signIn := new(defs.SignIn)
+	err := json.Unmarshal([]byte(input.Data), &signIn)
 	if err != nil {
 		log.Print(err)
 		ctx.Release()
 		return
 	}
-	messages, err := service.MessageService.ListByUserIdAndSeq(ctx.AppId, ctx.UserId, sync.Seq)
+	appId, _ := strconv.ParseInt(signIn.AppId, 10, 64)
+	userId, _ := strconv.ParseInt(signIn.UserId, 10, 64)
+	deviceId, _ := strconv.ParseInt(signIn.DeviceId, 10, 64)
+	err = service.AuthService.SignIn(appId, userId, deviceId, signIn.Token, "", 0)
+	if err != nil {
+		log.Print(err)
+		ctx.Release()
+		return
+	}
+	ctx.AppId = appId
+	ctx.UserId = userId
+	ctx.DeviceId = deviceId
+
+	// 断开这个设备之前的连接
+	preCtx := load(ctx.DeviceId)
+	if preCtx != nil {
+		preCtx.DeviceId = PreConn
+	}
+	store(ctx.DeviceId, ctx)
+	ctx.Output(defs.PackageType_SignIn, 0, err, "OK")
+}
+
+// 离线消息同步
+func (ctx *ConnContext) Sync(input defs.Input) {
+	var sync defs.SyncInput
+	err := json.Unmarshal([]byte(input.Data), &sync)
+	if err != nil {
+		log.Print(err)
+		ctx.Release()
+		return
+	}
+	seq, _ := strconv.ParseInt(sync.Seq, 10, 64)
+
+	messages, err := service.MessageService.ListByUserIdAndSeq(ctx.AppId, ctx.UserId, seq)
 	var syncOutput defs.SyncOutput
 	if err == nil {
 		syncOutput = defs.SyncOutput{Messages: *messages}
@@ -84,14 +117,14 @@ func (ctx *ConnContext) Sync(input defs.Input) {
 }
 
 func (ctx *ConnContext) Heartbeat(input defs.Input) {
-	ctx.Output(defs.PackageType_HEARTBEAT, input.RequestId, nil, nil)
-	log.Print("heartbeat ", " device_id ", ctx.DeviceId, " user_id ", ctx.UserId)
+	ctx.Output(defs.PackageType_HEARTBEAT, 0, nil, "PONG")
+	log.Print("device_id：", ctx.DeviceId, " PING")
 }
 
 // 消息回执
 func (ctx *ConnContext) MessageACK(input defs.Input) {
 	var messageACK defs.MessageACK
-	err := json.Unmarshal(input.Data, &messageACK)
+	err := json.Unmarshal([]byte(input.Data), &messageACK)
 	if err != nil {
 		log.Print(err)
 		ctx.Release()
@@ -101,24 +134,18 @@ func (ctx *ConnContext) MessageACK(input defs.Input) {
 	if err != nil {
 		log.Print(err)
 	}
+	ctx.Output(defs.PackageType_MESSAGE_ACK, 0, err, "OK")
 }
 
-func (ctx *ConnContext) Output(pt defs.PackageType, requestId int, err error, message *defs.SyncOutput) {
+func (ctx *ConnContext) Output(pt defs.PackageType, requestId int, err error, data interface{}) {
 	var output = defs.Output{
 		Type:      pt,
 		RequestId: requestId,
+		Data:      data,
 	}
 	if err != nil {
 		output.Code = 1
 		output.Message = err.Error()
-	}
-	if message != nil {
-		msgBytes, err := json.Marshal(message)
-		if err != nil {
-			log.Print(err)
-			return
-		}
-		output.Data = msgBytes
 	}
 	outputBytes, err := json.Marshal(&output)
 	if err != nil {

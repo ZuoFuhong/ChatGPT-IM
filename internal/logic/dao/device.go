@@ -13,9 +13,9 @@ var DeviceDao = new(deviceDao)
 // 插入一条设备信息
 func (*deviceDao) Add(device *model.Device) error {
 	_, err := db.Cli.Exec(`
-		INSERT INTO device(device_id,app_id,type,brand,model,system_version,sdk_version,status,conn_addr,conn_fd) 
-		VALUES(?,?,?,?,?,?,?,?,?)`,
-		device.DeviceId, device.AppId, device.Type, device.Brand, device.Model, device.SystemVersion, device.SDKVersion, device.Status, "", 0)
+		INSERT INTO device(device_id,app_id,user_id,type,brand,model,system_version,sdk_version,status,conn_addr,conn_fd) 
+		VALUES(?,?,?,?,?,?,?,?,?,?,?)`,
+		device.DeviceId, device.AppId, device.UserId, device.Type, device.Brand, device.Model, device.SystemVersion, device.SDKVersion, device.Status, "", 0)
 	return err
 }
 

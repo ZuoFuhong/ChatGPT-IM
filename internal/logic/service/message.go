@@ -136,7 +136,7 @@ func (*messageService) SendToChatRoom(requestId int64, sender defs.Sender, req d
 			Type:           req.MessageType,
 			Content:        string(req.MessageContent),
 			Seq:            seq,
-			SendTime:       time.Unix(0, req.SendTime*1000000),
+			SendTime:       time.Now(),
 			Status:         int32(defs.MessageStatus_MS_NORMAL),
 		}
 		err = MessageService.Add(message)
@@ -158,7 +158,7 @@ func (*messageService) SendToChatRoom(requestId int64, sender defs.Sender, req d
 
 // 将消息持久化到数据库,并且消息发送至用户
 func (*messageService) SendToUser(requestId int64, sender defs.Sender, toUserId int64, roomSeq int64, req defs.SendMessageReq) error {
-	log.Print("message_store_send_to_user", " message_id：", req.MessageId, " app_id：", sender.AppId, " to_user_id：", toUserId)
+	log.Print("message_store_send_to_user", " app_id：", sender.AppId, " to_user_id：", toUserId)
 
 	seq, err := SeqService.GetUserNext(sender.AppId, toUserId)
 	if err != nil {
@@ -178,7 +178,7 @@ func (*messageService) SendToUser(requestId int64, sender defs.Sender, toUserId 
 		Type:           req.MessageType,
 		Content:        string(req.MessageContent),
 		Seq:            seq,
-		SendTime:       time.Unix(0, req.SendTime*1000000),
+		SendTime:       time.Now(),
 		Status:         int32(defs.MessageStatus_MS_NORMAL),
 	}
 	if req.IsPersist {
@@ -207,7 +207,6 @@ func (*messageService) SendToUser(requestId int64, sender defs.Sender, toUserId 
 // 将消息发送给设备
 func (*messageService) SendToDevice(device model.Device, message model.Message) error {
 	if device.Status == model.DeviceOnLine {
-
 		// todo: load(deviceId)
 	}
 	return nil

@@ -47,7 +47,7 @@ func (*messageDao) ListBySeq(appId, objectType, objectId, seq int64) (*[]model.M
 // 根据类型和id获取最大的seq
 func (*messageDao) GetMaxByObjectId(appId, objectType, objectId int64) (int64, error) {
 	row := db.Cli.QueryRow(`
-			SELECT max(seq)
+			SELECT IFNULL(max(seq), 0)
 			FROM message
 			WHERE app_id = ?
 			AND object_type = ?

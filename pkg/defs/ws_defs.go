@@ -5,15 +5,16 @@ import "go-IM/internal/logic/model"
 type PackageType int
 
 const (
-	PackageType_SYNC      PackageType = 1
-	PackageType_HEARTBEAT PackageType = 2
-	PackageType_MESSAGE   PackageType = 3
+	PackageType_SignIn      PackageType = 1
+	PackageType_SYNC        PackageType = 2
+	PackageType_HEARTBEAT   PackageType = 3
+	PackageType_MESSAGE_ACK PackageType = 4
 )
 
 type Input struct {
 	Type      PackageType
 	RequestId int
-	Data      []byte
+	Data      string
 }
 
 type Output struct {
@@ -21,11 +22,18 @@ type Output struct {
 	RequestId int
 	Code      int
 	Message   string
-	Data      []byte
+	Data      interface{}
+}
+
+type SignIn struct {
+	AppId    string
+	UserId   string
+	DeviceId string
+	Token    string
 }
 
 type SyncInput struct {
-	Seq int64
+	Seq string
 }
 
 type SyncOutput struct {
@@ -41,9 +49,8 @@ type MessageACK struct {
 type SenderType int32
 
 const (
-	SenderType_ST_SYSTEM   SenderType = 1 // 系统
-	SenderType_ST_USER     SenderType = 2 // 用户
-	SenderType_ST_BUSINESS SenderType = 3 // 业务方
+	SenderType_ST_SYSTEM SenderType = 1 // 系统
+	SenderType_ST_USER   SenderType = 2 // 用户
 )
 
 type Sender struct {
@@ -63,13 +70,11 @@ const (
 )
 
 type SendMessageReq struct {
-	MessageId      string
 	ReceiverType   ReceiverType
 	ReceiverId     int64
 	ToUserIds      []int64
 	MessageType    int
 	MessageContent []byte
-	SendTime       int64
 	IsPersist      bool
 }
 

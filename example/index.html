@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="#" />
+    <title>Title</title>
+</head>
+<body>
+    <h2>HTML5 websocket 聊天室</h2>
+    <button id="open" type="button">建立连接</button>
+    <button id="signIn" type="button">登录鉴权</button>
+    <button id="sync" type="button">消息同步</button>
+    <button id="close" type="button">关闭连接</button>
+
+    <script type="application/javascript">
+        /**
+         * 连接句柄
+         */
+        let ws = null;
+
+        /**
+         * 最大重连次数
+         */
+        const MAX_RECONNECT = 5;
+
+        /**
+         * 当前重连次数
+         */
+        let CURRENT_RECONNECT_COUNT = 0;
+
+        /**
+         * 心跳定时器
+         */
+        let timer = null;
+
+        /**
+         * 手动断开连接
+         */
+        let flag = true;
+
+        /**
+         * 本地最大序列号
+         */
+        let seq = 0;
+
+        document.getElementById("open").addEventListener("click", function () {
+            openConnect();
+        });
+        document.getElementById("signIn").addEventListener("click", function () {
+            let signIn = {
+                appId: "1",
+                userId: "54146910402904064",
+                deviceId: "54151683218866176",
+                token: "m8T5sqdVNhSOzh0pe/jxbm7pKpKstEbJmjJDTVCM+I5/nEk2kix/CS3rzMwWc6jhEd0MeqQYFgilVazUJNF8qGd3IMin/Lea1pSRki+fq7GHsMnC0gwEr6twVfT1TNxKQc5F11tJS3i0NHUEEI6pA0DhULT4eT3HgdgB1ErNH1o="
+            };
+            let data = {
+                type: 1,
+                requestId: 0,
+                data: JSON.stringify(signIn)
+            };
+            ws.send(JSON.stringify(data))
+        });
+        document.getElementById("sync").addEventListener("click", function () {
+            let data = {
+                type: 2,
+                requestId: 0,
+                data: JSON.stringify({
+                    seq: String.valueOf(seq)
+                })
+            };
+            ws.send(JSON.stringify(data))
+        });
+        document.getElementById("close").addEventListener("click", function () {
+            flag = false;
+            ws.close();
+        });
+
+        function openConnect () {
+            ws = new WebSocket("ws://127.0.0.1:8080/ws");
+            ws.onopen = function() {
+                CURRENT_RECONNECT_COUNT = 0;
+                flag = true;
+                console.log("连接成功");
+
+                if (timer != null) {
+                    clearInterval(timer);
+                }
+                timer = setInterval(function () {
+                    let data = {
+                        type: 3,
+                        data: "PING"
+                    };
+                    ws.send(JSON.stringify(data));
+                }, 10000);
+            };
+            ws.onmessage = function(evt) {
+                let data = JSON.parse(evt.data);
+                console.log("服务器消息：", data);
+            };
+            ws.onclose = function() {
+                if (flag) {
+                    setTimeout(function () {
+                        if (CURRENT_RECONNECT_COUNT++ < MAX_RECONNECT) {
+                            openConnect();
+                        }
+                    }, 3000)
+                } else {
+                    console.log("连接断开");
+                    if (timer != null) {
+                        clearInterval(timer);
+                        timer = null;
+                    }
+                }
+            };
+            ws.onerror = function () {
+                console.log("连接错误");
+            };
+        }
+    </script>
+</body>
+</html>
