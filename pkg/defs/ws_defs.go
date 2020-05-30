@@ -1,6 +1,6 @@
 package defs
 
-import "go-IM/internal/logic/model"
+import "go-IM/logic/model"
 
 type PackageType int
 

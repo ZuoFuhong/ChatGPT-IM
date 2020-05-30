@@ -62,3 +62,7 @@
 - 大群消息群发
 
 ![e3f92bdbb3eef199d185c28292307497.png](http://s1.wailian.download/2019/12/26/e3f92bdbb3eef199d185c28292307497.png)
+
+### License
+
+The project is licensed under the Apache 2 license.
