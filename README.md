@@ -29,4 +29,4 @@ make
 
 ### License
 
-The project is licensed under the Apache 2 license.
+The project is licensed under the MIT license.
