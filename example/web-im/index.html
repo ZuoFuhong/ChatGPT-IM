@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-IM</title>
+    <link rel="stylesheet" href="./css/index.css">
+    <style type="text/css">
+        .web-app {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 260px;
+            height: 500px;
+            border: 1px solid #afafaf;
+        }
+        .person-info {
+            background-color: #f6f6f6;
+        }
+        .person-info > .username {
+            padding: 10px 12px 0;
+        }
+        .person-info > .person-sign {
+            padding: 10px 12px 0;
+            font-size: 14px;
+            color: #656464;
+        }
+        .person-info > .tools > .closeBtn {
+            background-color: #ffffff;
+        }
+        .switch-tab {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 0;
+            background-color: #f6f6f6;
+        }
+        .switch-tab > .active {
+            border-bottom: 3px solid #72d98e !important;
+        }
+        .switch-tab > .tab-item {
+            width: 33%;
+            display: flex;
+            justify-content: center;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #f6f6f6;
+        }
+        .tab-item > img{
+            height: 25px;
+            width: 25px;
+        }
+        .tab-item:hover {
+            cursor: pointer;
+        }
+        .session-item {
+            display: flex;
+            padding: 8px 15px;
+        }
+        .session-item:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+        .session-item > .name-sign {
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        .name-sign > .sign {
+            color: #9c9c9c;
+            font-size: 13px;
+        }
+        .group-item {
+            display: flex;
+            padding: 8px 15px;
+        }
+        .group-item > .group-name {
+            font-size: 14px;
+            margin-left: 5px;
+            padding-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <!-- 会话窗口 -->
+        <div class="dialog" v-show="activeSession !== 0">
+            <div class="contacts">
+                <div class="contact-item" v-for="user in users">
+                    <div class="human" :class="{'human-active': user.userId === activeSession}"
+                         v-on:click="switchSession(user.userId)" @mouseover="selectStyle(user.userId)" @mouseout="outStyle(user.userId)">
+                        <div class="avatar">
+                            <img :src="user.avatar" alt="">
+                        </div>
+                        <div class="username">
+                            {{user.username}}
+                        </div>
+                        <div class="remove">
+                            <button class="removeBtn" @click.stop="closeSession(user.userId)" v-show="hoverSession === user.userId">x</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="session-windows">
+                <div class="session-info">
+                    <div class="avatar">
+                        <img :src="curUser.avatar" alt="">
+                    </div>
+                    <div class="username">
+                        {{ curUser.username }}
+                    </div>
+                    <div class="tools">
+                        <button class="closeBtn" v-on:click="closeDialog">x</button>
+                    </div>
+                </div>
+                <div class="message-panel">
+                    <div class="message-item" v-for="message in messageList">
+                        <div class="user-info" v-show="message.userId !== loginUser.userId">
+                            <div class="avatar">
+                                <img :src="message.avatar" alt="">
+                            </div>
+                            <div class="username">
+                                {{ message.username }}
+                            </div>
+                            <div class="createTime">
+                                {{ message.createTime }}
+                            </div>
+                        </div>
+                        <div class="message-info" style="justify-content: flex-start; margin-left: 30px;" v-show="message.userId !== loginUser.userId">
+                            <div class="message-icon">
+                                <img src="./assets/icon/left-msg.svg" alt="">
+                            </div>
+                            <div class="message-content">
+                                {{ message.content }}
+                            </div>
+                        </div>
+                        <!-- me -->
+                        <div class="user-info right" v-show="message.userId === loginUser.userId">
+                            <div class="createTime">
+                                {{ message.createTime }}
+                            </div>
+                            <div class="username">
+                                {{ message.username }}
+                            </div>
+                            <div class="avatar">
+                                <img :src="message.avatar" alt="">
+                            </div>
+                        </div>
+                        <div class="message-info" style="justify-content: flex-end; margin-right: 28px;" v-show="message.userId === loginUser.userId">
+                            <div class="message-content right">
+                                {{ message.content }}
+                            </div>
+                            <div class="message-icon">
+                                <img src="./assets/icon/right-msg.svg" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="message-input">
+                    <div class="plugins">
+                        <div class="plugin-item" v-on:click="notSupport">
+                            <img src="./assets/icon/smile.svg" alt="">
+                        </div>
+                        <div class="plugin-item" v-on:click="notSupport">
+                            <img src="./assets/icon/image.svg" alt="">
+                        </div>
+                        <div class="plugin-item" v-on:click="notSupport">
+                            <img src="./assets/icon/file.svg" alt="">
+                        </div>
+                        <div class="plugin-item" v-on:click="notSupport">
+                            <img src="./assets/icon/audio.svg" alt="">
+                        </div>
+                        <div class="plugin-item" v-on:click="notSupport">
+                            <img src="./assets/icon/video.svg" alt="">
+                        </div>
+                        <div class="plugin-item history" v-on:click="notSupport">
+                            <img src="./assets/icon/history.svg" alt="">
+                            <span class="history-txt">聊天记录</span>
+                        </div>
+                    </div>
+                    <div class="input-area">
+                        <label>
+                            <textarea rows="3" cols="70" maxlength="140" @keyup.enter="confirmSendMsg" v-model="sendText"></textarea>
+                        </label>
+                    </div>
+                    <div class="input-button-groups">
+                        <button v-on:click="closeSession(activeSession)">关闭</button>
+                        <button v-on:click="confirmSendMsg">发送</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- web-app -->
+        <div class="web-app">
+            <div class="person-info">
+                <div class="username">
+                    {{ loginUser.username }}
+                </div>
+                <div class="person-sign">
+                    {{ loginUser.personSignature }}
+                </div>
+                <div class="tools">
+                    <button class="closeBtn">x</button>
+                </div>
+            </div>
+            <div class="switch-tab">
+                <div class="tab-item" :class="{active: activeTab === 1}" v-on:click="switchTab(1)">
+                    <img src="./assets/icon/session.svg"/>
+                </div>
+                <div class="tab-item" :class="{active: activeTab === 2}" v-on:click="switchTab(2)">
+                    <img src="./assets/icon/person.svg" />
+                </div>
+                <div class="tab-item" :class="{active: activeTab === 3}" v-on:click="switchTab(3)">
+                    <img src="./assets/icon/group.svg" />
+                </div>
+            </div>
+            <div class="tab-panel">
+                <!-- 会话列表 -->
+                <div class="session" v-show="activeTab === 1">
+                    <div class="session-item" v-for="sessionUser in sessionUsers" v-on:click="openActiveSession(sessionUser.userId)">
+                        <div class="avatar">
+                            <img :src="sessionUser.avatar" alt="">
+                        </div>
+                        <div class="name-sign">
+                            <div class="username">
+                                {{ sessionUser.username }}
+                            </div>
+                            <div class="sign">
+                                {{ sessionUser.personSignature }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 好友列表 -->
+                <div class="session" v-show="activeTab === 2">
+                    <div class="session-item" v-for="friend in friends" v-on:click="openActiveSession(friend.userId)">
+                        <div class="avatar">
+                            <img :src="friend.avatar" alt="">
+                        </div>
+                        <div class="name-sign">
+                            <div class="username">
+                                {{ friend.username }}
+                            </div>
+                            <div class="sign">
+                                {{ friend.personSignature }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 群组列表 -->
+                <div class="group-chat" v-show="activeTab === 3">
+                    <div class="group-item" v-for="group in groupList">
+                        <div class="avatar">
+                            <img :src="group.avatar" alt="">
+                        </div>
+                        <div class="group-name">
+                            {{ group.groupName }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/index.js"></script>
+</body>
+</html>

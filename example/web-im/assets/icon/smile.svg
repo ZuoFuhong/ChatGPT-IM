@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="144px" height="144px" viewBox="0 0 144 144" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>smile</title>
+    <desc>Created with Sketch.</desc>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="画板" transform="translate(-43.000000, -39.000000)" stroke="#3F3F3F">
+            <g id="smile" transform="translate(45.000000, 41.000000)">
+                <circle id="椭圆形" stroke-width="4" cx="70" cy="70" r="70"></circle>
+                <circle id="椭圆形" fill="#3F3F3F" cx="41" cy="54" r="4"></circle>
+                <circle id="椭圆形" fill="#3F3F3F" cx="103" cy="54" r="4"></circle>
+                <path d="M41,94 C41,105.59798 53.9837423,115 70,115 C86.0162577,115 99,105.59798 99,94" id="路径" stroke-width="4"></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="112px" height="87px" viewBox="0 0 112 87" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>session</title>
+    <desc>Created with Sketch.</desc>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="画板" transform="translate(-581.000000, -265.000000)">
+            <g id="session" transform="translate(581.000000, 265.000000)">
+                <ellipse id="椭圆形" fill="#636361" cx="56" cy="41" rx="56" ry="41"></ellipse>
+                <circle id="椭圆形" fill="#FFFFFF" cx="22" cy="43" r="6"></circle>
+                <circle id="椭圆形" fill="#FFFFFF" cx="59" cy="43" r="6"></circle>
+                <circle id="椭圆形" fill="#FFFFFF" cx="94" cy="43" r="6"></circle>
+                <path d="M37.7079398,65 C58.3019647,72.8369106 66.3194975,78.5013698 61.7605381,81.9933778 C57.2015787,85.4853857 39.6147327,87.1506951 9,86.9893059 L37.7079398,65 Z" id="三角形" fill="#636361"></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -167,7 +167,7 @@ func (ctx *ConnContext) Release() {
 	}
 	// 设备下线
 	if ctx.DeviceId != PreConn {
-		delete(ctx.DeviceId)
+		clear(ctx.DeviceId)
 		_ = service.DeviceService.Offline(ctx.AppId, ctx.UserId, ctx.DeviceId)
 	}
 }

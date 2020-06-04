@@ -16,6 +16,6 @@ func load(deviceId int64) *ConnContext {
 	return nil
 }
 
-func delete(deviceId int64) {
+func clear(deviceId int64) {
 	manager.Delete(deviceId)
 }

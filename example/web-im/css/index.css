@@ -1,0 +1,221 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+body {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+}
+button:hover {
+    cursor: pointer;
+}
+button:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow:none;
+}
+.dialog {
+    width: 800px;
+    height: 550px;
+    margin: 80px auto 0;
+    border: 1px solid #afafaf;
+    display: flex;
+}
+.contacts {
+    width: 200px;
+    background-color: #d9d9d9;
+    height: 100%;
+}
+.contact-item {
+    padding: 5px 5px 0;
+}
+.human {
+    display: flex;
+    padding: 5px;
+    border-radius: 4px;
+}
+.human:hover {
+    cursor: pointer;
+    background-color: #e2e2e2;
+}
+.human-active {
+    background-color: white;
+}
+.human > .avatar {
+    height: 40px;
+}
+.avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+}
+.human > .username {
+    height: 40px;
+    line-height: 40px;
+    margin-left: 10px;
+    font-size: 16px;
+    width: 100px;
+    color: #474747;
+}
+.human > .remove {
+    display: flex;
+    align-items: center;
+}
+.removeBtn {
+    border: none;
+    background-color: #555555;
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    color: white;
+    text-align: center;
+    line-height: 18px;
+    margin-left: 10px;
+}
+.removeBtn:hover {
+    cursor: pointer;
+}
+.session-info {
+    height: 80px;
+    width: 600px;
+    background-color: #f7f7f7;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+.session-info > .avatar {
+    margin-left: 15px;
+}
+.session-info > .avatar > img{
+    height: 50px;
+    width: 50px;
+    border-radius: 100%;
+}
+.session-info > .username {
+    margin-left: 10px;
+    font-size: 18px;
+    color: #474747;
+}
+.tools {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.tools > .closeBtn {
+    border: none;
+    width: 50px;
+    color: #6c6c74;
+    font-size: 24px;
+    font-weight: lighter;
+    line-height: 40px;
+    background-color: #f7f7f7;
+}
+.session-info > .tools > .closeBtn:hover {
+    cursor: pointer;
+    color: #adadaf;
+}
+.message-panel {
+    height: 300px;
+    width: 600px;
+    background-color: white;
+    overflow: auto;
+    padding-bottom: 20px;
+}
+.message-panel .message-item {
+    padding: 20px 20px 0;
+}
+.message-item > .user-info {
+    display: flex;
+}
+.message-item > .right {
+    justify-content: flex-end;
+}
+.user-info > .username {
+    font-size: 14px;
+    padding-top: 5px;
+    margin-left: 15px;
+    color: #999999;
+}
+.user-info > .createTime {
+    font-size: 14px;
+    padding-top: 5px;
+    margin-left: 15px;
+    color: #999999;
+}
+.message-info {
+    display: flex;
+    justify-content: center;
+}
+.message-info > .message-icon > img {
+    height: 16px;
+    width: 16px;
+}
+.message-info > .message-content {
+    max-width: 440px;
+    background-color: #e2e2e2;
+    /*margin: 0 auto;*/
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.message-info .right {
+    background-color: #75b57e;
+    color: #ffffff;
+}
+.message-input {
+    border-top: 1px solid #e3e2e2;
+    width: 600px;
+    height: 150px;
+}
+.plugins {
+    display: flex;
+}
+.plugins > .plugin-item {
+    padding: 10px;
+    margin-left: 10px;
+}
+.plugins > .plugin-item > img {
+    height: 25px;
+    width: 25px;
+}
+.plugins > .history {
+    margin-left: 200px;
+    display: flex;
+}
+.plugins > .plugin-item:hover {
+    cursor: pointer;
+}
+.history > .history-txt {
+    margin-left: 10px;
+    font-size: 14px;
+    line-height: 25px;
+}
+.input-area {
+    height: 55px;
+    padding: 0 10px;
+}
+.input-area > label > textarea {
+    border: none;
+    outline:none;
+    resize: none;
+}
+.input-button-groups {
+    height: 33px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+.input-button-groups > button {
+    border: none;
+    background-color: #75b47e;
+    color: white;
+    font-size: 14px;
+    padding: 8px 20px;
+    margin-right: 10px;
+    border-radius: 2px;
+}
+.input-button-groups > button:active {
+    background-color: #89c492;
+}

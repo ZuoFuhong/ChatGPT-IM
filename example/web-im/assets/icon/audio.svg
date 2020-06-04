@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="138px" height="122px" viewBox="0 0 138 122" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>audio</title>
+    <desc>Created with Sketch.</desc>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="画板" transform="translate(-814.000000, -50.000000)" stroke="#5B5B5B">
+            <g id="audio" transform="translate(816.000000, 52.000000)">
+                <path d="M134,82.1557935 C134,45.4288577 114.971836,-7.10542736e-15 67,-7.10542736e-15 C19.0281642,-7.10542736e-15 0,45.4288577 0,82.1557935" id="路径" stroke-width="4"></path>
+                <rect id="矩形" fill="#5B5B5B" x="94" y="68" width="12" height="51"></rect>
+                <rect id="矩形" fill="#5B5B5B" x="28" y="68" width="12" height="51"></rect>
+            </g>
+        </g>
+    </g>
+</svg>
