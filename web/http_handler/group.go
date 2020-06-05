@@ -23,8 +23,9 @@ func (*group) Create(w http.ResponseWriter, r *http.Request) {
 		panic(errs.ParameterError)
 	}
 	group := new(model.Group)
-	group.AppId = form.AppId
+	group.AppId, _ = strconv.ParseInt(form.AppId, 10, 64)
 	group.Name = form.Name
+	group.AvatarUrl = form.AvatarUrl
 	group.Introduction = form.Introduction
 	group.UserNum = form.UserNum
 	group.Type = form.Type
@@ -32,7 +33,7 @@ func (*group) Create(w http.ResponseWriter, r *http.Request) {
 	groupId := service.GroupService.Create(group)
 
 	resp := make(map[string]interface{})
-	resp["groupId"] = groupId
+	resp["groupId"] = strconv.FormatInt(groupId, 10)
 	bytes, _ := json.Marshal(resp)
 	_, _ = w.Write(bytes)
 }
@@ -40,11 +41,19 @@ func (*group) Create(w http.ResponseWriter, r *http.Request) {
 // 群组信息
 func (*group) Info(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	appId, _ := strconv.ParseInt(vars["aid"], 10, 64)
 	groupId, _ := strconv.ParseInt(vars["gid"], 10, 64)
-	group := service.GroupService.Get(appId, groupId)
+	group := service.GroupService.Get(groupId)
+	if group == nil {
+		panic(errs.NewHttpErr(errs.Group, "The group does not exist"))
+	}
+	groupVO := new(defs.GroupVO)
+	groupVO.GroupId = strconv.FormatInt(group.GroupId, 10)
+	groupVO.Name = group.Name
+	groupVO.AvatarUrl = group.AvatarUrl
+	groupVO.Introduction = group.Introduction
+	groupVO.Type = group.Type
 
-	bytes, _ := json.Marshal(group)
+	bytes, _ := json.Marshal(groupVO)
 	_, _ = w.Write(bytes)
 }
 
@@ -57,9 +66,10 @@ func (*group) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	group := new(model.Group)
-	group.AppId = form.AppId
-	group.GroupId = form.GroupId
+	group.AppId, _ = strconv.ParseInt(form.AppId, 10, 64)
+	group.GroupId, _ = strconv.ParseInt(form.GroupId, 10, 64)
 	group.Name = form.Name
+	group.AvatarUrl = form.AvatarUrl
 	group.Introduction = form.Introduction
 	group.Extra = form.Extra
 	service.GroupService.Update(group)
@@ -70,9 +80,8 @@ func (*group) Update(w http.ResponseWriter, r *http.Request) {
 // 查询群组用户
 func (*group) Users(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	appId, _ := strconv.ParseInt(vars["aid"], 10, 64)
 	groupId, _ := strconv.ParseInt(vars["gid"], 10, 64)
-	users := service.GroupUserService.GetUsers(appId, groupId)
+	users := service.GroupUserService.GetUsers(groupId)
 
 	bytes, _ := json.Marshal(users)
 	_, _ = w.Write(bytes)
@@ -86,9 +95,9 @@ func (*group) AddUser(w http.ResponseWriter, r *http.Request) {
 		panic(errs.ParameterError)
 	}
 	groupUser := new(model.GroupUser)
-	groupUser.AppId = form.AppId
-	groupUser.GroupId = form.GroupId
-	groupUser.UserId = form.UserId
+	groupUser.AppId, _ = strconv.ParseInt(form.AppId, 10, 64)
+	groupUser.GroupId, _ = strconv.ParseInt(form.GroupId, 10, 64)
+	groupUser.UserId, _ = strconv.ParseInt(form.UserId, 10, 64)
 	groupUser.Label = form.Label
 	groupUser.Extra = form.Extra
 	service.GroupService.AddUser(groupUser)
@@ -104,9 +113,9 @@ func (*group) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		panic(errs.ParameterError)
 	}
 	groupUser := new(model.GroupUser)
-	groupUser.AppId = form.AppId
-	groupUser.GroupId = form.GroupId
-	groupUser.UserId = form.UserId
+	groupUser.AppId, _ = strconv.ParseInt(form.AppId, 10, 64)
+	groupUser.GroupId, _ = strconv.ParseInt(form.GroupId, 10, 64)
+	groupUser.UserId, _ = strconv.ParseInt(form.UserId, 10, 64)
 	groupUser.Label = form.Label
 	groupUser.Extra = form.Extra
 	service.GroupService.UpdateUser(groupUser)
@@ -128,10 +137,9 @@ func (*group) Groups(w http.ResponseWriter, r *http.Request) {
 // 群组踢人
 func (*group) KickUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	appId, _ := strconv.ParseInt(vars["aid"], 10, 64)
 	groupId, _ := strconv.ParseInt(vars["gid"], 10, 64)
 	userId, _ := strconv.ParseInt(vars["uid"], 10, 64)
 
-	service.GroupService.DeleteUser(appId, groupId, userId)
+	service.GroupService.DeleteUser(groupId, userId)
 	_, _ = w.Write([]byte("ok"))
 }

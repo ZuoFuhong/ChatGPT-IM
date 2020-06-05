@@ -28,8 +28,8 @@ func (*userService) Add(user *model.User) int64 {
 }
 
 // Get 获取用户信息
-func (*userService) Get(appId, userId int64) *model.User {
-	user, err := dao.UserDao.Get(appId, userId)
+func (*userService) Get(userId int64) *model.User {
+	user, err := dao.UserDao.Get(userId)
 	if err != nil {
 		panic(err)
 	}

@@ -23,7 +23,7 @@ func (*user) Register(w http.ResponseWriter, r *http.Request) {
 		panic(errs.ParameterError)
 	}
 	user := new(model.User)
-	user.AppId = form.AppId
+	user.AppId, _ = strconv.ParseInt(form.AppId, 10, 64)
 	user.Nickname = form.Nickname
 	user.Sex = form.Sex
 	user.AvatarUrl = form.AvatarUrl
@@ -39,11 +39,19 @@ func (*user) Register(w http.ResponseWriter, r *http.Request) {
 // 查询用户
 func (*user) Info(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	appId, _ := strconv.ParseInt(vars["aid"], 10, 64)
 	userId, _ := strconv.ParseInt(vars["uid"], 10, 64)
 
-	user := service.UserService.Get(appId, userId)
-	bytes, _ := json.Marshal(user)
+	user := service.UserService.Get(userId)
+	if user == nil {
+		panic(errs.NewHttpErr(errs.User, "The user does not exist"))
+	}
+	userVO := new(defs.UserVO)
+	userVO.UserId = strconv.FormatInt(user.UserId, 10)
+	userVO.Nickname = user.Nickname
+	userVO.AvatarUrl = user.AvatarUrl
+	userVO.Extra = user.Extra
+
+	bytes, _ := json.Marshal(userVO)
 	_, _ = w.Write(bytes)
 }
 
@@ -55,8 +63,8 @@ func (*user) Update(w http.ResponseWriter, r *http.Request) {
 		panic(errs.ParameterError)
 	}
 	user := new(model.User)
-	user.AppId = form.AppId
-	user.UserId = form.UserId
+	user.AppId, _ = strconv.ParseInt(form.AppId, 10, 64)
+	user.UserId, _ = strconv.ParseInt(form.UserId, 10, 64)
 	user.Nickname = form.Nickname
 	user.Sex = form.Sex
 	user.AvatarUrl = form.AvatarUrl

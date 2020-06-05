@@ -7,6 +7,7 @@ import (
 	"go-IM/pkg/defs"
 	"go-IM/pkg/errs"
 	"net/http"
+	"strconv"
 )
 
 type device struct{}
@@ -21,8 +22,8 @@ func (*device) Register(w http.ResponseWriter, r *http.Request) {
 		panic(errs.ParameterError)
 	}
 	device := new(model.Device)
-	device.AppId = form.AppId
-	device.UserId = form.UserId
+	device.AppId, _ = strconv.ParseInt(form.AppId, 10, 64)
+	device.UserId, _ = strconv.ParseInt(form.UserId, 10, 64)
 	device.Type = form.Type
 	device.Brand = form.Brand
 	device.Model = form.Model
@@ -34,7 +35,7 @@ func (*device) Register(w http.ResponseWriter, r *http.Request) {
 		panic(errs.NewHttpErr(errs.Device, "注册失败"))
 	}
 	resp := make(map[string]interface{})
-	resp["deviceId"] = deviceId
+	resp["deviceId"] = strconv.FormatInt(deviceId, 10)
 	bytes, _ := json.Marshal(resp)
 	_, _ = w.Write(bytes)
 }

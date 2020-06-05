@@ -7,9 +7,9 @@
 
 > 新增功能点
 
-- 1.新增了`web`模块，提供`RESTFul API`接口，可以用来注册设备、创建群组、添加用户等。
-
-- 2.`web`服务支持静态文件处理，在`example`目录中提供一个H5客户端，可以调试服务端`websocket`，收发消息。
+- 1.`A` 新增好友列表
+- 2.`A` 新增web`模块，提供`RESTFul API`接口，可以用来注册设备、创建群组、添加用户、添加好友等。
+- 3.`A` 新增H5演示Demo，在`example`目录中提供一个H5客户端，可以调试服务端`websocket`，收发消息。
 
 ### Development
 
@@ -24,7 +24,7 @@ go mod tidy
 make
 
 # init the database
-./doc/init_table.sql
+./doc/create_table.sql
 ```
 
 ### License

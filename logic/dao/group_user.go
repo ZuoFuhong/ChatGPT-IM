@@ -34,19 +34,17 @@ func (*groupUserDao) ListByUserId(appId, userId int64) ([]model.Group, error) {
 }
 
 // ListGroupUser 获取群组用户信息
-func (*groupUserDao) ListUser(appId, groupId int64) ([]model.GroupUser, error) {
+func (*groupUserDao) ListUser(groupId int64) ([]model.GroupUser, error) {
 	rows, err := db.Cli.Query(`
 		SELECT user_id,label,extra,create_time,update_time 
 		FROM group_user
-		WHERE app_id = ?
-		AND group_id = ?`, appId, groupId)
+		WHERE group_id = ?`, groupId)
 	if err != nil {
 		return nil, err
 	}
 	groupUsers := make([]model.GroupUser, 0, 5)
 	for rows.Next() {
 		var groupUser = model.GroupUser{
-			AppId:   appId,
 			GroupId: groupId,
 		}
 		err := rows.Scan(&groupUser.UserId, &groupUser.Label, &groupUser.Extra, &groupUser.CreateTime, &groupUser.UpdateTime)
@@ -90,9 +88,8 @@ func (*groupUserDao) Add(appId, groupId, userId int64, label, extra string) erro
 }
 
 // 将用户从群组删除
-func (d *groupUserDao) Delete(appId int64, groupId int64, userId int64) error {
-	_, err := db.Cli.Exec("DELETE FROM group_user WHERE app_id = ? AND group_id = ? AND user_id = ?",
-		appId, groupId, userId)
+func (d *groupUserDao) Delete(groupId int64, userId int64) error {
+	_, err := db.Cli.Exec("DELETE FROM group_user WHERE group_id = ? AND user_id = ?", groupId, userId)
 	return err
 }
 

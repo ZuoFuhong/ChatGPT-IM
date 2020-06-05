@@ -84,7 +84,7 @@ func (*messageService) SendToFriend(requestId int64, sender defs.Sender, req def
 
 // 消息发送至群组（使用写扩散）
 func (*messageService) SendToGroup(requestId int64, sender defs.Sender, req defs.SendMessageReq) error {
-	users := GroupUserService.GetUsers(sender.AppId, req.ReceiverId)
+	users := GroupUserService.GetUsers(req.ReceiverId)
 
 	if sender.SenderType == defs.SenderType_ST_USER && !IsInGroup(users, sender.SenderId) {
 		log.Print(sender.SenderId, req.ReceiverId, "不在群组内")
@@ -112,7 +112,7 @@ func IsInGroup(users []model.GroupUser, userId int64) bool {
 
 // 消息发送至聊天室（读扩散）
 func (*messageService) SendToChatRoom(requestId int64, sender defs.Sender, req defs.SendMessageReq) error {
-	users := GroupUserService.GetUsers(sender.AppId, req.ReceiverId)
+	users := GroupUserService.GetUsers(req.ReceiverId)
 	if !IsInGroup(users, sender.SenderId) {
 		return errors.New("Not in group")
 	}

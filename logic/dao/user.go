@@ -26,14 +26,11 @@ func (*userDao) Add(user *model.User) (int64, error) {
 }
 
 // 获取用户信息
-func (*userDao) Get(appId, userId int64) (*model.User, error) {
-	row := db.Cli.QueryRow("SELECT nickname,sex,avatar_url,extra,create_time,update_time FROM user WHERE app_id = ? AND user_id = ?",
-		appId, userId)
+func (*userDao) Get(userId int64) (*model.User, error) {
+	row := db.Cli.QueryRow("SELECT nickname,sex,avatar_url,extra,create_time,update_time FROM user WHERE user_id = ?", userId)
 	user := model.User{
-		AppId:  appId,
 		UserId: userId,
 	}
-
 	err := row.Scan(&user.Nickname, &user.Sex, &user.AvatarUrl, &user.Extra, &user.CreateTime, &user.UpdateTime)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err

@@ -12,8 +12,8 @@ type groupService struct{}
 var GroupService = new(groupService)
 
 // Get 获取群组信息
-func (*groupService) Get(appId, groupId int64) *model.Group {
-	group, err := dao.GroupDao.Get(appId, groupId)
+func (*groupService) Get(groupId int64) *model.Group {
+	group, err := dao.GroupDao.Get(groupId)
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +37,7 @@ func (*groupService) Create(group *model.Group) int64 {
 
 // Update 更新群组
 func (*groupService) Update(group *model.Group) {
-	err := dao.GroupDao.Update(group.AppId, group.GroupId, group.Name, group.Introduction, group.Extra)
+	err := dao.GroupDao.Update(group.AppId, group.GroupId, group.Name, group.AvatarUrl, group.Introduction, group.Extra)
 	if err != nil {
 		panic(err)
 	}
@@ -45,11 +45,11 @@ func (*groupService) Update(group *model.Group) {
 
 // AddUser 给群组添加用户
 func (*groupService) AddUser(groupUser *model.GroupUser) {
-	group := GroupService.Get(groupUser.AppId, groupUser.GroupId)
+	group := GroupService.Get(groupUser.GroupId)
 	if group == nil {
 		panic(errs.NewHttpErr(errs.Group, "Group not exist"))
 	}
-	user := UserService.Get(groupUser.AppId, groupUser.UserId)
+	user := UserService.Get(groupUser.UserId)
 	if user == nil {
 		panic(errs.NewHttpErr(errs.Group, "user not exist"))
 	}
@@ -60,7 +60,7 @@ func (*groupService) AddUser(groupUser *model.GroupUser) {
 
 // UpdateUser 更新群组用户
 func (*groupService) UpdateUser(groupUser *model.GroupUser) {
-	group := GroupService.Get(groupUser.AppId, groupUser.GroupId)
+	group := GroupService.Get(groupUser.GroupId)
 	if group == nil {
 		panic(errs.NewHttpErr(errs.Group, "Group not exist"))
 	}
@@ -70,12 +70,12 @@ func (*groupService) UpdateUser(groupUser *model.GroupUser) {
 }
 
 // DeleteUser 删除用户群组
-func (*groupService) DeleteUser(appId, groupId, userId int64) {
-	group := GroupService.Get(appId, groupId)
+func (*groupService) DeleteUser(groupId, userId int64) {
+	group := GroupService.Get(groupId)
 	if group == nil {
 		panic(errs.NewHttpErr(errs.Group, "Group not exist"))
 	}
 	if group.Type == model.GroupTypeGroup {
-		GroupUserService.DeleteUser(appId, groupId, userId)
+		GroupUserService.DeleteUser(groupId, userId)
 	}
 }
