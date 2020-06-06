@@ -15,10 +15,10 @@ func Test_MockSystemSend(t *testing.T) {
 	}
 	messageReq := defs.SendMessageReq{
 		ReceiverType:   defs.ReceiverType_RT_USER,
-		ReceiverId:     54146910402904064,
-		ToUserIds:      []int64{},
-		MessageType:    0,
-		MessageContent: []byte("world"),
+		ReceiverId:     54146910402904065,
+		MessageType:    defs.Message_TEXT,
+		MessageContent: "hello world",
+		ToUserIds:      []string{},
 		IsPersist:      true,
 	}
 	err := MessageService.Send(0, sender, messageReq)

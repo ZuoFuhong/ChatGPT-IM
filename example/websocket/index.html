@@ -6,9 +6,10 @@
     <title>Title</title>
 </head>
 <body>
-    <h2>HTML5 websocket 聊天室</h2>
+    <h2>HTML5 websocket 调试</h2>
     <button id="open" type="button">建立连接</button>
     <button id="signIn" type="button">登录鉴权</button>
+    <button id="sendMsg" type="button">发送消息</button>
     <button id="sync" type="button">消息同步</button>
     <button id="close" type="button">关闭连接</button>
 
@@ -50,8 +51,8 @@
             let signIn = {
                 appId: "1",
                 userId: "54146910402904064",
-                deviceId: "54151683218866176",
-                token: "m8T5sqdVNhSOzh0pe/jxbm7pKpKstEbJmjJDTVCM+I5/nEk2kix/CS3rzMwWc6jhEd0MeqQYFgilVazUJNF8qGd3IMin/Lea1pSRki+fq7GHsMnC0gwEr6twVfT1TNxKQc5F11tJS3i0NHUEEI6pA0DhULT4eT3HgdgB1ErNH1o="
+                deviceId: "56805130707664896",
+                token: "xwfYAVz8bEQ6mEV6YLbXTx6kB8HcTtzDGmIJTT4btDxkk9bn0VJGq5uDDDFQ7X1tTNekX/3bK1W93H7BFeRz3zUTJSxAo/lb8xLBYei04Bh6blwfKANBeNCIS4uSb2hhcyMOsyofUjmWAPeCelF1ZVM6ag6zrhqiHeRKVBJWccI="
             };
             let data = {
                 type: 1,
@@ -60,6 +61,23 @@
             };
             ws.send(JSON.stringify(data))
         });
+        document.getElementById("sendMsg").addEventListener("click", function () {
+            let data = {
+                type: 5,
+                requestId: 0,
+                data: JSON.stringify({
+                    AppId: "1",
+                    SenderId: "54146910402904064",
+                    DeviceId: "56805130707664896",
+                    ReceiverType: 1,
+                    ReceiverId: "54146910402904065",
+                    MessageType: 1,
+                    MessageContent: "hello bear two",
+                    ToUserIds: []
+                })
+            }
+            ws.send(JSON.stringify(data))
+        })
         document.getElementById("sync").addEventListener("click", function () {
             let data = {
                 type: 2,

@@ -62,6 +62,8 @@ func (ctx *ConnContext) HandlePackage(data []byte) {
 		ctx.Heartbeat(input)
 	case defs.PackageType_MESSAGE_ACK:
 		ctx.MessageACK(input)
+	case defs.PackageType_RT_USER:
+		ctx.SendToUser(input)
 	}
 }
 
@@ -93,7 +95,7 @@ func (ctx *ConnContext) SignIn(input defs.Input) {
 		preCtx.DeviceId = PreConn
 	}
 	store(ctx.DeviceId, ctx)
-	ctx.Output(defs.PackageType_SignIn, 0, err, "OK")
+	ctx.Output(defs.PackageType_SignIn, input.RequestId, err, "OK")
 }
 
 // 离线消息同步
@@ -117,7 +119,7 @@ func (ctx *ConnContext) Sync(input defs.Input) {
 }
 
 func (ctx *ConnContext) Heartbeat(input defs.Input) {
-	ctx.Output(defs.PackageType_HEARTBEAT, 0, nil, "PONG")
+	ctx.Output(defs.PackageType_HEARTBEAT, input.RequestId, nil, "PONG")
 	log.Print("device_id：", ctx.DeviceId, " PING")
 }
 
@@ -134,10 +136,44 @@ func (ctx *ConnContext) MessageACK(input defs.Input) {
 	if err != nil {
 		log.Print(err)
 	}
-	ctx.Output(defs.PackageType_MESSAGE_ACK, 0, err, "OK")
+	ctx.Output(defs.PackageType_MESSAGE_ACK, input.RequestId, err, "OK")
 }
 
-func (ctx *ConnContext) Output(pt defs.PackageType, requestId int, err error, data interface{}) {
+func (ctx *ConnContext) SendToUser(input defs.Input) {
+	var message defs.SendMessage
+	err := json.Unmarshal([]byte(input.Data), &message)
+	if err != nil {
+		log.Print(err)
+		ctx.Release()
+		return
+	}
+	appId, _ := strconv.ParseInt(message.AppId, 10, 64)
+	senderId, _ := strconv.ParseInt(message.SenderId, 10, 64)
+	deviceId, _ := strconv.ParseInt(message.DeviceId, 10, 64)
+	sender := defs.Sender{
+		AppId:      appId,
+		SenderType: defs.SenderType_ST_SYSTEM,
+		SenderId:   senderId,
+		DeviceId:   deviceId,
+	}
+	receiverId, _ := strconv.ParseInt(message.ReceiverId, 10, 64)
+	messageReq := defs.SendMessageReq{
+		ReceiverType:   message.ReceiverType,
+		ReceiverId:     receiverId,
+		MessageType:    message.MessageType,
+		MessageContent: message.MessageContent,
+		ToUserIds:      message.ToUserIds,
+		IsPersist:      true,
+	}
+	err = service.MessageService.Send(input.RequestId, sender, messageReq)
+	if err != nil {
+		log.Print(err)
+		ctx.Release()
+		return
+	}
+}
+
+func (ctx *ConnContext) Output(pt defs.PackageType, requestId int64, err error, data interface{}) {
 	var output = defs.Output{
 		Type:      pt,
 		RequestId: requestId,

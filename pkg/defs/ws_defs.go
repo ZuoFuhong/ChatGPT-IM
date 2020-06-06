@@ -9,17 +9,18 @@ const (
 	PackageType_SYNC        PackageType = 2
 	PackageType_HEARTBEAT   PackageType = 3
 	PackageType_MESSAGE_ACK PackageType = 4
+	PackageType_RT_USER     PackageType = 5
 )
 
 type Input struct {
 	Type      PackageType
-	RequestId int
+	RequestId int64
 	Data      string
 }
 
 type Output struct {
 	Type      PackageType
-	RequestId int
+	RequestId int64
 	Code      int
 	Message   string
 	Data      interface{}
@@ -60,6 +61,14 @@ type Sender struct {
 	DeviceId   int64      // 发送者设备id
 }
 
+type MessageType int32
+
+const (
+	Message_TEXT  MessageType = 1
+	Message_IMAGE MessageType = 2
+	Message_AUDIO MessageType = 3
+)
+
 // 接收者类型
 type ReceiverType int32
 
@@ -72,9 +81,9 @@ const (
 type SendMessageReq struct {
 	ReceiverType   ReceiverType
 	ReceiverId     int64
-	ToUserIds      []int64
-	MessageType    int
-	MessageContent []byte
+	MessageType    MessageType
+	MessageContent string
+	ToUserIds      []string
 	IsPersist      bool
 }
 
@@ -85,3 +94,14 @@ const (
 	MessageStatus_MS_NORMAL MessageStatus = 1 // 未处理
 	MessageStatus_MS_RECALL MessageStatus = 2 // 消息撤回
 )
+
+type SendMessage struct {
+	AppId          string       // appId
+	SenderId       string       // 发送者id
+	DeviceId       string       // 发送者设备id
+	ReceiverType   ReceiverType // 接收者类型
+	ReceiverId     string       // 接收者ID
+	MessageType    MessageType  // 消息类型
+	MessageContent string       // 消息内容
+	ToUserIds      []string     // 需要@的用户
+}
