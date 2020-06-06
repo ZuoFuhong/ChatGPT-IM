@@ -11,7 +11,7 @@
  Target Server Version : 50726
  File Encoding         : 65001
 
- Date: 05/06/2020 19:25:54
+ Date: 06/06/2020 20:41:30
 */
 
 SET NAMES utf8mb4;
@@ -65,8 +65,8 @@ CREATE TABLE `device` (
 -- Records of device
 -- ----------------------------
 BEGIN;
-INSERT INTO `device` VALUES (1, 56805130707664896, 1, 54146910402904064, 5, 'chrome', 'mac', '0.0.1', '0.0.1', 0, '', 0, '2020-06-05 18:03:18', '2020-06-05 18:03:18');
-INSERT INTO `device` VALUES (2, 56805286664470528, 1, 54146910402904065, 5, 'chrome', 'mac', '0.0.1', '0.0.1', 0, '', 0, '2020-06-05 18:03:55', '2020-06-05 18:03:55');
+INSERT INTO `device` VALUES (1, 56805130707664896, 1, 54146910402904064, 5, 'chrome', 'mac', '0.0.1', '0.0.1', 1, '', 0, '2020-06-05 18:03:18', '2020-06-06 09:34:31');
+INSERT INTO `device` VALUES (2, 56805286664470528, 1, 54146910402904065, 5, 'chrome', 'mac', '0.0.1', '0.0.1', 1, '', 0, '2020-06-05 18:03:55', '2020-06-06 15:57:08');
 INSERT INTO `device` VALUES (3, 56805315022159872, 1, 54146910402904066, 5, 'chrome', 'mac', '0.0.1', '0.0.1', 0, '', 0, '2020-06-05 18:04:02', '2020-06-05 18:04:02');
 COMMIT;
 
@@ -106,7 +106,7 @@ CREATE TABLE `friend` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_app_id_user_id_friend_id` (`app_id`,`user_id`,`friend_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='好友表';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='好友表';
 
 -- ----------------------------
 -- Records of friend
@@ -114,6 +114,8 @@ CREATE TABLE `friend` (
 BEGIN;
 INSERT INTO `friend` VALUES (1, 1, 54146910402904064, 54146910402904065, '2020-06-05 17:41:43', '2020-06-05 17:41:43');
 INSERT INTO `friend` VALUES (2, 1, 54146910402904064, 54146910402904066, '2020-06-05 17:42:16', '2020-06-05 17:42:16');
+INSERT INTO `friend` VALUES (3, 1, 54146910402904065, 54146910402904064, '2020-06-06 11:16:38', '2020-06-06 11:16:38');
+INSERT INTO `friend` VALUES (5, 1, 54146910402904066, 54146910402904064, '2020-06-06 11:17:43', '2020-06-06 11:17:43');
 COMMIT;
 
 -- ----------------------------
@@ -140,8 +142,8 @@ CREATE TABLE `group` (
 -- Records of group
 -- ----------------------------
 BEGIN;
-INSERT INTO `group` VALUES (1, 1, 54153362676908032, '伐木经验分享群', 'https://img2020.cnblogs.com/blog/1323675/202006/1323675-20200605171836495-1347921678.png', '', 7, 1, '', '2020-05-29 10:26:07', '2020-06-05 19:25:04');
-INSERT INTO `group` VALUES (2, 1, 54153362676908033, '保卫森林交流群', 'https://img2020.cnblogs.com/blog/1323675/202006/1323675-20200605171843724-1814943720.png', ' ', 4, 1, ' ', '2020-05-29 10:26:07', '2020-06-05 17:34:05');
+INSERT INTO `group` VALUES (1, 1, 54153362676908032, '伐木经验分享群', 'https://go-im-image.oss-cn-hangzhou.aliyuncs.com/avatar/1323675-20200605171836495-1347921678.png', '', 9, 1, '', '2020-05-29 10:26:07', '2020-06-06 11:26:07');
+INSERT INTO `group` VALUES (2, 1, 54153362676908033, '保卫森林交流群', 'https://go-im-image.oss-cn-hangzhou.aliyuncs.com/avatar/1323675-20200605171843724-1814943720.png', ' ', 8, 1, ' ', '2020-05-29 10:26:07', '2020-06-06 11:26:13');
 COMMIT;
 
 -- ----------------------------
@@ -160,7 +162,16 @@ CREATE TABLE `group_user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_app_id_group_id_user_id` (`app_id`,`group_id`,`user_id`) USING BTREE,
   KEY `idx_app_id_user_id` (`app_id`,`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组成员关系';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组成员关系';
+
+-- ----------------------------
+-- Records of group_user
+-- ----------------------------
+BEGIN;
+INSERT INTO `group_user` VALUES (1, 1, 54153362676908033, 54146910402904064, '', '', '2020-06-06 11:02:12', '2020-06-06 11:02:12');
+INSERT INTO `group_user` VALUES (2, 1, 54153362676908033, 54146910402904065, '', '', '2020-06-06 11:02:17', '2020-06-06 11:02:17');
+INSERT INTO `group_user` VALUES (3, 1, 54153362676908032, 54146910402904066, '', '', '2020-06-06 11:02:29', '2020-06-06 11:02:29');
+COMMIT;
 
 -- ----------------------------
 -- Table structure for message
@@ -188,7 +199,7 @@ CREATE TABLE `message` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_app_id_object_seq` (`app_id`,`object_type`,`object_id`,`seq`) USING BTREE,
   KEY `idx_request_id` (`request_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='消息';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='消息';
 
 -- ----------------------------
 -- Table structure for user
@@ -212,9 +223,9 @@ CREATE TABLE `user` (
 -- Records of user
 -- ----------------------------
 BEGIN;
-INSERT INTO `user` VALUES (1, 1, 54146910402904064, '熊大', 1, 'https://img2020.cnblogs.com/blog/1323675/202006/1323675-20200605171809292-1360535226.jpg', '做熊，就要有个熊样', '2020-05-29 10:00:29', '2020-06-05 18:21:56');
-INSERT INTO `user` VALUES (2, 1, 54146910402904065, '熊二', 1, 'https://img2020.cnblogs.com/blog/1323675/202006/1323675-20200605171821524-1987592313.jpg', '俺要吃蜂蜜', '2020-05-29 10:00:29', '2020-06-05 17:22:43');
-INSERT INTO `user` VALUES (3, 1, 54146910402904066, '光头强', 1, 'https://img2020.cnblogs.com/blog/1323675/202006/1323675-20200605171828104-535094423.jpg', '臭狗熊，我饶不了你们！', '2020-05-29 10:00:29', '2020-06-05 17:22:43');
+INSERT INTO `user` VALUES (1, 1, 54146910402904064, '熊大', 1, 'https://go-im-image.oss-cn-hangzhou.aliyuncs.com/avatar/1323675-20200605171809292-1360535226.jpg', '做熊，就要有个熊样', '2020-05-29 10:00:29', '2020-06-06 11:25:29');
+INSERT INTO `user` VALUES (2, 1, 54146910402904065, '熊二', 1, 'https://go-im-image.oss-cn-hangzhou.aliyuncs.com/avatar/1323675-20200605171821524-1987592313.jpg', '俺要吃蜂蜜', '2020-05-29 10:00:29', '2020-06-06 11:25:39');
+INSERT INTO `user` VALUES (3, 1, 54146910402904066, '光头强', 1, 'https://go-im-image.oss-cn-hangzhou.aliyuncs.com/avatar/1323675-20200605171828104-535094423.jpg', '臭狗熊，我饶不了你们！', '2020-05-29 10:00:29', '2020-06-06 11:25:46');
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
