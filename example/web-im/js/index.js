@@ -1,68 +1,91 @@
+"use strict";
 let app = new Vue({
     el: '#container',
     data: {
         activeSession: 0,
         hoverSession: 0,
-        activeTab: 3,
-        loginUser: {
-            userId: 2,
-            avatar: "./assets/avatar2.jpg",
-            username: "熊二",
-            personSignature: "俺要吃蜂蜜"
-        },
+        activeTab: 1,
+        loginUser: {},
         sendText: '',
         users: [],
         sessionUsers: [],
-        friends: [
-            {
-                userId: 1,
-                avatar: "./assets/avatar1.jpg",
-                username: "熊大",
-                personSignature: "做熊，就要有个熊样"
-            },
-            {
-                userId: 2,
-                avatar: "./assets/avatar2.jpg",
-                username: "熊二",
-                personSignature: "俺要吃蜂蜜"
-            },
-            {
-                userId: 3,
-                avatar: "./assets/avatar3.jpg",
-                username: "光头强",
-                personSignature: "臭狗熊，我饶不了你们！"
-            }
-        ],
-        groupList: [
-            {
-                groupId: 1,
-                avatar: "./assets/group1.png",
-                groupName: "伐木经验分享群"
-            },
-            {
-                groupId: 2,
-                avatar: "./assets/group2.png",
-                groupName: "保卫森林交流群"
-            },
-        ],
-        messageList: [
-            {
-                userId: 1,
-                avatar: "./assets/avatar1.jpg",
-                username: "熊大",
-                createTime: "2020-06-04 23:10:10",
-                content: "hello 熊二"
-            },
-            {
-                userId: 2,
-                avatar: "./assets/avatar2.jpg",
-                username: "熊二",
-                createTime: "2020-06-04 23:10:10",
-                content: "好呀好呀"
-            }
-        ]
+        friends: [],
+        groupList: [],
+        messageCache: {},
+        wsclient: null,
+        seq: "0"
+    },
+    async created() {
+        let userId = getQueryVariable("uid")
+        await this.loadLoginUser(userId)
+        await this.loadUserFriends(userId)
+        await this.loadUserGroups(userId)
+        await this.initWSConn()
+    },
+    updated() {
+        this.$nextTick(() => {
+            let container = this.$el.querySelector("#message-panel");
+            container.scrollTop = container.scrollHeight;
+        });
     },
     methods: {
+        async loadLoginUser(uid) {
+            let res = await AsyncGet(`user/info?uid=${uid}`)
+            if (res.error_code !== undefined) {
+                alert(res.msg)
+            } else {
+                this.loginUser = {
+                    userId: res.user.user_id,
+                    avatar: res.user.avatar_url,
+                    username: res.user.nickname,
+                    personSignature: res.user.extra,
+                    deviceId: res.deviceId,
+                    token: res.token
+                }
+            }
+        },
+        async loadUserFriends(uid) {
+            let res = await AsyncGet(`friend/list?uid=${uid}`)
+            if (res.error_code !== undefined) {
+                alert(res.msg)
+            } else {
+                let friends = []
+                res.forEach(function(value) {
+                    let friend = {
+                        userId: value.user_id,
+                        avatar: value.avatar_url,
+                        username: value.nickname,
+                        personSignature: value.extra
+                    }
+                    friends.push(friend)
+                })
+                this.friends = friends
+            }
+        },
+        async loadUserGroups(uid) {
+            let res = await AsyncGet(`group/user/groups?uid=${uid}`)
+            if (res.error_code !== undefined) {
+                alert(res.msg)
+            } else {
+                let groups = [];
+                res.forEach(function(value) {
+                    let group = {
+                        groupId: value.group_id,
+                        avatar: value.avatar_url,
+                        groupName: value.name
+                    }
+                    groups.push(group)
+                })
+                this.groupList = groups;
+            }
+        },
+        async initWSConn() {
+            this.wsclient = new Websocket(config.WS_URL, this.handleWSMessage)
+            let that = this;
+            setTimeout(function() {
+                that.wsClientAuth()
+            }, 1500)
+        },
         closeDialog: function() {
             this.activeSession = 0;
             this.users = [];
@@ -73,14 +96,7 @@ let app = new Vue({
         confirmSendMsg() {
             let content = trim(this.sendText)
             if (content) {
-                let loginUser = this.loginUser
-                this.messageList.push({
-                    userId: loginUser.userId,
-                    avatar: loginUser.avatar,
-                    username: loginUser.username,
-                    createTime: dateFormat("YYYY-mm-dd HH:MM:SS", new Date()),
-                    content: content
-                })
+                this.wsClientSendToUser(content)
             }
             this.sendText = '';
         },
@@ -143,7 +159,117 @@ let app = new Vue({
         },
         notSupport() {
             alert("暂不支持，敬请期待")
-        }
+        },
+        handleWSMessage(evt) {
+            let packa = JSON.parse(evt.data)
+            let that = this;
+            switch(packa.Type) {
+                case 1:
+                    this.wsClientSync();
+                    break;
+                case 2:
+                    packa.Data.Messages.forEach(function(message) {
+                        that.syncLocalCacheChatLogs(message)
+                    })
+                    break;
+                case 3:
+                    // one heartbeat in 10 seconds
+                    break;
+                case 4:
+                    // TODO: ACK
+                    break;
+                case 5:
+                    that.syncLocalCacheChatLogs(packa.Data)
+                    break;
+                default:
+            }
+        },
+        // 客户端授权
+        wsClientAuth() {
+            let data = JSON.stringify({
+                appId: "1",
+                userId: this.loginUser.userId,
+                deviceId: this.loginUser.deviceId,
+                token: this.loginUser.token
+            })
+            this.wsclient.pushToServer(JSON.stringify({
+                type: 1,
+                requestId: 0,
+                data: data
+            }))
+        },
+        // 离线消息同步
+        wsClientSync() {
+            let data = {
+                seq: this.seq
+            }
+            this.wsclient.pushToServer(JSON.stringify({
+                type: 2,
+                requestId: 0,
+                data: JSON.stringify(data)
+            }))
+        },
+        wsClientSendToUser(content) {
+            let data = {
+                AppId: "1",
+                SenderId: this.loginUser.userId,
+                DeviceId: this.loginUser.deviceId,
+                ReceiverType: 1,
+                ReceiverId: this.activeSession,
+                MessageType: 1,
+                MessageContent: content,
+                ToUserIds: []
+            }
+            this.wsclient.pushToServer(JSON.stringify({
+                type: 5,
+                requestId: 0,
+                data: JSON.stringify(data)
+            }))
+        },
+        syncLocalCacheChatLogs(message) {
+            let userId = this.loginUser.userId;
+            let key = `${userId}-${message.SenderId}`
+            if (userId === message.SenderId) {
+                key = `${userId}-${message.ReceiverId}`
+            }
+            let messageCache = this.messageCache;
+            let messageList = [];
+            if (!messageCache.hasOwnProperty(key)) {
+                messageCache[key] = messageList;
+            } else {
+                messageList = messageCache[key];
+            }
+            let sender = this.extractUserInfo(message.SenderId);
+            messageList.push({
+                userId: sender.userId,
+                avatar: sender.avatar,
+                username: sender.username,
+                createTime: message.SendTime,
+                content: message.Content,
+            })
+            // trigger computed
+            this.messageCache = null;
+            this.messageCache = messageCache;
+        },
+        extractUserInfo(userId) {
+            let loginUser = this.loginUser;
+            let friends = this.friends;
+            let user = {
+                userId: userId
+            };
+            if (userId === this.loginUser.userId) {
+                user.avatar = loginUser.avatar;
+                user.username = loginUser.username;
+            } else {
+                friends.forEach(function (value) {
+                    if (userId === value.userId) {
+                        user.avatar = value.avatar;
+                        user.username = value.username;
+                    }
+                })
+            }
+            return user;
+        },
     },
     computed: {
         curUser: function () {
@@ -158,6 +284,16 @@ let app = new Vue({
                 curUser = {}
             }
             return curUser;
+        },
+        messageList: function() {
+            let userId = this.loginUser.userId;
+            let key = `${userId}-${this.activeSession}`
+            let messageList = [];
+            if (this.messageCache.hasOwnProperty(key)) {
+                return this.messageCache[key];
+            }
+            console.log("dfadfa")
+            return messageList;
         }
     }
 })

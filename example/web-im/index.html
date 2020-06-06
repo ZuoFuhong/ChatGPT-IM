@@ -111,7 +111,7 @@
                         <button class="closeBtn" v-on:click="closeDialog">x</button>
                     </div>
                 </div>
-                <div class="message-panel">
+                <div class="message-panel" id="message-panel">
                     <div class="message-item" v-for="message in messageList">
                         <div class="user-info" v-show="message.userId !== loginUser.userId">
                             <div class="avatar">
@@ -261,7 +261,11 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/index.js"></script>
+    <script src="lib/axios.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/axios.js"></script>
+    <script src="js/websocket.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/index.js"></script>
 </body>
 </html>
