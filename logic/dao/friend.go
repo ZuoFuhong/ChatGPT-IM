@@ -14,13 +14,12 @@ func (*friendDao) Insert(appId, userId, friendId int64) error {
 	return err
 }
 
-func (*friendDao) SelectFriends(appId, userId int64) (*[]model.User, error) {
+func (*friendDao) SelectFriends(userId int64) (*[]model.User, error) {
 	rows, err := db.Cli.Query(`
 		SELECT u.app_id, u.user_id, u.nickname, u.sex, u.avatar_url, u.extra, u.create_time, u.update_time
 		FROM friend f
 		LEFT JOIN user u ON u.user_id = f.friend_id
-		WHERE f.app_id = ? AND f.user_id = ?
-		`, appId, userId)
+		WHERE f.user_id = ?`, userId)
 	if err != nil {
 		return nil, err
 	}

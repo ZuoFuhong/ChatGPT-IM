@@ -30,10 +30,9 @@ func (*friend) AddFriend(w http.ResponseWriter, r *http.Request) {
 // 查询好友
 func (*friend) ListFriend(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	appId, _ := strconv.ParseInt(vars["aid"], 10, 64)
 	userId, _ := strconv.ParseInt(vars["uid"], 10, 64)
 
-	friends := service.FriendService.QueryFriends(appId, userId)
+	friends := service.FriendService.QueryFriends(userId)
 	bytes, err := json.Marshal(friends)
 	if err != nil {
 		panic(err)

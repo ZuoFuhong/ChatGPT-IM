@@ -2,9 +2,13 @@ package ws_handler
 
 import (
 	"github.com/gorilla/websocket"
+	"go-IM/logic/service"
+	"go-IM/pkg/defs"
 	"log"
 	"net/http"
 )
+
+var pushChan *chan defs.MessageItem
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -23,4 +27,22 @@ func WSHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx := NewConnContext(conn)
 	ctx.DoConn()
+
+	messageChan := make(chan defs.MessageItem)
+	pushChan = &messageChan
+	service.MessageService.PushChan = pushChan
+	DoSend()
+}
+
+// 内部通信
+func DoSend() {
+	go func() {
+		for {
+			message := <-*pushChan
+			ctx := load(message.ReceiverDeviceId)
+			if ctx != nil {
+				ctx.Output(defs.PackageType_RT_USER, 0, nil, message)
+			}
+		}
+	}()
 }

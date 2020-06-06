@@ -59,3 +59,12 @@ func (*deviceService) Online(appId, deviceId, userId int64, connAddr string, con
 func (*deviceService) Offline(appId, userId, deviceId int64) error {
 	return dao.DeviceDao.UpdateStatus(deviceId, DeviceOffline)
 }
+
+// 测试使用
+func (*deviceService) QueryTestDevice(userId int64, brand string) int64 {
+	deviceId, err := dao.DeviceDao.GetDeviceByParams(userId, brand)
+	if err != nil {
+		panic(err)
+	}
+	return deviceId
+}

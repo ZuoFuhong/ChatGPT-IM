@@ -18,8 +18,8 @@ func (*friendService) AddFriend(appId, userId, friendId int64) {
 }
 
 // 查询好友列表
-func (*friendService) QueryFriends(appId, userId int64) *[]model.User {
-	friends, err := dao.FriendDao.SelectFriends(appId, userId)
+func (*friendService) QueryFriends(userId int64) *[]model.User {
+	friends, err := dao.FriendDao.SelectFriends(userId)
 	if err != nil {
 		panic(err)
 	}

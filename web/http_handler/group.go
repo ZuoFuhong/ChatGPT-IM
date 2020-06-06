@@ -126,9 +126,8 @@ func (*group) UpdateUser(w http.ResponseWriter, r *http.Request) {
 // 查询用户加入的群组
 func (*group) Groups(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	appId, _ := strconv.ParseInt(vars["aid"], 10, 64)
 	userId, _ := strconv.ParseInt(vars["uid"], 10, 64)
-	groups := service.GroupUserService.ListByUserId(appId, userId)
+	groups := service.GroupUserService.ListByUserId(userId)
 
 	bytes, _ := json.Marshal(groups)
 	_, _ = w.Write(bytes)

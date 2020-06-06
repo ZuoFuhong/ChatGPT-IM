@@ -109,12 +109,22 @@ func (ctx *ConnContext) Sync(input defs.Input) {
 	}
 	seq, _ := strconv.ParseInt(sync.Seq, 10, 64)
 
-	messages, err := service.MessageService.ListByUserIdAndSeq(ctx.AppId, ctx.UserId, seq)
+	messageList, err := service.MessageService.ListByUserIdAndSeq(ctx.AppId, ctx.UserId, seq)
 	var syncOutput defs.SyncOutput
 	if err == nil {
-		syncOutput = defs.SyncOutput{Messages: *messages}
+		messageItems := make([]defs.MessageItem, 0, 5)
+		for _, v := range *messageList {
+			var messageItem defs.MessageItem
+			messageItem.SenderId = strconv.FormatInt(v.SenderId, 10)
+			messageItem.ReceiverId = strconv.FormatInt(v.ReceiverId, 10)
+			messageItem.SendTime = util.FormatDatetime(v.SendTime, util.YYYYMMDDHHMMSS)
+			messageItem.Type = defs.MessageType(v.Type)
+			messageItem.Content = v.Content
+			messageItem.Seq = strconv.FormatInt(v.Seq, 10)
+			messageItems = append(messageItems, messageItem)
+		}
+		syncOutput = defs.SyncOutput{Messages: messageItems}
 	}
-
 	ctx.Output(defs.PackageType_SYNC, input.RequestId, err, &syncOutput)
 }
 
@@ -165,7 +175,7 @@ func (ctx *ConnContext) SendToUser(input defs.Input) {
 		ToUserIds:      message.ToUserIds,
 		IsPersist:      true,
 	}
-	err = service.MessageService.Send(input.RequestId, sender, messageReq)
+	err = service.MessageService.SendToFriend(input.RequestId, sender, messageReq)
 	if err != nil {
 		log.Print(err)
 		ctx.Release()

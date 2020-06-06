@@ -5,12 +5,16 @@ import (
 	"go-IM/logic/dao"
 	"go-IM/logic/model"
 	"go-IM/pkg/defs"
+	"go-IM/pkg/util"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 )
 
-type messageService struct{}
+type messageService struct {
+	PushChan *chan defs.MessageItem
+}
 
 var MessageService = new(messageService)
 
@@ -192,9 +196,6 @@ func (*messageService) SendToUser(requestId int64, sender defs.Sender, toUserId 
 		return err
 	}
 	for _, v := range devices {
-		if sender.DeviceId == v.DeviceId {
-			continue
-		}
 		err := MessageService.SendToDevice(v, message)
 		if err != nil {
 			return err
@@ -204,9 +205,18 @@ func (*messageService) SendToUser(requestId int64, sender defs.Sender, toUserId 
 }
 
 // 将消息发送给设备
-func (*messageService) SendToDevice(device model.Device, message model.Message) error {
+func (s *messageService) SendToDevice(device model.Device, message model.Message) error {
 	if device.Status == model.DeviceOnLine {
-		// todo: load(deviceId)
+		var messageItem defs.MessageItem
+		messageItem.SenderId = strconv.FormatInt(message.SenderId, 10)
+		messageItem.ReceiverId = strconv.FormatInt(message.ReceiverId, 10)
+		messageItem.ReceiverDeviceId = device.DeviceId
+		messageItem.SendTime = util.FormatDatetime(message.SendTime, util.YYYYMMDDHHMMSS)
+		messageItem.Type = defs.MessageType(message.Type)
+		messageItem.Content = message.Content
+		messageItem.Seq = strconv.FormatInt(message.Seq, 10)
+
+		*s.PushChan <- messageItem
 	}
 	return nil
 }

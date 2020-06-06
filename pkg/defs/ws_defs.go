@@ -1,7 +1,5 @@
 package defs
 
-import "go-IM/logic/model"
-
 type PackageType int
 
 const (
@@ -38,7 +36,7 @@ type SyncInput struct {
 }
 
 type SyncOutput struct {
-	Messages []model.Message
+	Messages []MessageItem
 }
 
 type MessageACK struct {
@@ -104,4 +102,14 @@ type SendMessage struct {
 	MessageType    MessageType  // 消息类型
 	MessageContent string       // 消息内容
 	ToUserIds      []string     // 需要@的用户
+}
+
+type MessageItem struct {
+	SenderId         string      // 发送者id
+	ReceiverId       string      // 接收者id
+	ReceiverDeviceId int64       // 接收者设备ID
+	SendTime         string      // 发送时间
+	Type             MessageType // 消息类型
+	Content          string      // 消息内容
+	Seq              string      // 序列号
 }

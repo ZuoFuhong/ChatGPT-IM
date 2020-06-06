@@ -7,8 +7,10 @@ import (
 	"go-IM/logic/service"
 	"go-IM/pkg/defs"
 	"go-IM/pkg/errs"
+	"go-IM/pkg/util"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type user struct{}
@@ -51,7 +53,16 @@ func (*user) Info(w http.ResponseWriter, r *http.Request) {
 	userVO.AvatarUrl = user.AvatarUrl
 	userVO.Extra = user.Extra
 
-	bytes, _ := json.Marshal(userVO)
+	// Mock登录信息
+	deviceId := service.DeviceService.QueryTestDevice(userId, "chrome")
+	token, _ := util.GetToken(1, userId, deviceId, time.Now().Add(1*time.Hour).Unix(), util.PublicKey)
+
+	resp := make(map[string]interface{})
+	resp["user"] = userVO
+	resp["deviceId"] = strconv.FormatInt(deviceId, 10)
+	resp["token"] = token
+
+	bytes, _ := json.Marshal(resp)
 	_, _ = w.Write(bytes)
 }
 

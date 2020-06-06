@@ -11,20 +11,19 @@ type groupUserDao struct{}
 var GroupUserDao = new(groupUserDao)
 
 // 获取用户加入的群组信息
-func (*groupUserDao) ListByUserId(appId, userId int64) ([]model.Group, error) {
+func (*groupUserDao) ListByUserId(userId int64) ([]model.Group, error) {
 	rows, err := db.Cli.Query(
-		"SELECT g.group_id,g.name,g.introduction,g.user_num,g.type,g.extra,g.create_time,g.update_time "+
+		"SELECT g.group_id,g.name,g.avatar_url,g.introduction,g.user_num,g.type,g.extra,g.create_time,g.update_time "+
 			"FROM group_user u "+
 			"LEFT JOIN `group` g on u.app_id = g.app_id and u.group_id = g.group_id "+
-			"WHERE u.app_id = ? and u.user_id = ?",
-		appId, userId)
+			"WHERE u.user_id = ?", userId)
 	if err != nil {
 		return nil, err
 	}
 	var groups []model.Group
 	var group model.Group
 	for rows.Next() {
-		err := rows.Scan(&group.GroupId, &group.Name, &group.Introduction, &group.UserNum, &group.Type, &group.Extra, &group.CreateTime, &group.UpdateTime)
+		err := rows.Scan(&group.GroupId, &group.Name, &group.AvatarUrl, &group.Introduction, &group.UserNum, &group.Type, &group.Extra, &group.CreateTime, &group.UpdateTime)
 		if err != nil {
 			return nil, err
 		}

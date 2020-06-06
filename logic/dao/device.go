@@ -88,3 +88,11 @@ func (*deviceDao) Upgrade(deviceId int64, systemVersion, sdkVersion string) erro
 		systemVersion, sdkVersion, deviceId)
 	return err
 }
+
+// 测试使用
+func (*deviceDao) GetDeviceByParams(userId int64, brand string) (int64, error) {
+	row := db.Cli.QueryRow("SELECT device_id FROM device WHERE user_id = ? AND brand = ?", userId, brand)
+	var deviceId int64
+	err := row.Scan(&deviceId)
+	return deviceId, err
+}

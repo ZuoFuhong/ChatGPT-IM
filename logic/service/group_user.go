@@ -10,8 +10,8 @@ type groupUserService struct{}
 var GroupUserService = new(groupUserService)
 
 // ListByUserId 获取用户所加入的群组
-func (*groupUserService) ListByUserId(appId, userId int64) []model.Group {
-	groups, err := dao.GroupUserDao.ListByUserId(appId, userId)
+func (*groupUserService) ListByUserId(userId int64) []model.Group {
+	groups, err := dao.GroupUserDao.ListByUserId(userId)
 	if err != nil {
 		panic(err)
 	}
