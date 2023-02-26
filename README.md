@@ -14,7 +14,7 @@
 
 **[B站视频地址](https://www.bilibili.com/video/BV1uZ4y1H7yy)**
 
-![封面](./doc/im/cover.jpg)
+![封面](./doc/im/cover-openai.jpg)
 
 测试数据：
 
