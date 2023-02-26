@@ -30,7 +30,14 @@ func (*userService) UserInfo(userId int64) (*model.User, error) {
 
 // Update 更新用户信息
 func (*userService) Update(um *model.User) error {
-	now := time.Now()
-	um.Utime = now.UnixMilli()
-	return model.StoreUser(um)
+	umInfo, err := model.LoadUser(um.Id)
+	if err != nil {
+		return err
+	}
+	umInfo.Nickname = um.Nickname
+	umInfo.Sex = um.Sex
+	umInfo.AvatarUrl = um.AvatarUrl
+	umInfo.Extra = um.Extra
+	umInfo.Utime = time.Now().UnixMilli()
+	return model.StoreUser(umInfo)
 }

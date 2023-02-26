@@ -2,6 +2,8 @@ package consts
 
 const (
 	DefaultAddress = "127.0.0.1:8080"
+	APIKey         = "xxxxx"
+	RobotUid       = 1629828525085167616
 )
 
 // PrivateKey 公钥

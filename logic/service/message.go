@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"go-IM/consts"
 	"go-IM/logic/model"
 	"go-IM/pkg/defs"
 	"go-IM/pkg/tinyid"
@@ -59,6 +60,14 @@ func (s *messageService) Send(requestId int64, sender *defs.Sender, req *defs.Se
 func (s *messageService) SendToUser(requestId int64, sender *defs.Sender, toUserId int64, req *defs.SendMessageReq) error {
 	log.Print("message_store_send_to_user", " to_user_id：", toUserId)
 
+	// 表示向机器人提问
+	if toUserId == consts.RobotUid && req.MessageType == defs.MessageText {
+		if err := s.RobotRelay(sender, req); err != nil {
+			log.Printf("RobotRelay failed, senderId=%v, toUserId=%v, err:%v\n", sender.SenderId, toUserId, err)
+		}
+		return nil
+	}
+
 	// 获取下一个序列号
 	seq := tinyid.NextId()
 	msg := &model.Message{
@@ -85,6 +94,49 @@ func (s *messageService) SendToUser(requestId int64, sender *defs.Sender, toUser
 	}
 	// 查询用户在线设备
 	devices, err := DeviceService.ListOnlineByUid(toUserId)
+	if err != nil {
+		return err
+	}
+	for _, v := range devices {
+		err := s.SendToDevice(v, msg)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// RobotRelay 机器人智能回复
+func (s *messageService) RobotRelay(sender *defs.Sender, req *defs.SendMessageReq) error {
+	// 代理机器人回答
+	answer, err := ProxyRobotPost(req.MessageContent)
+	if err != nil {
+		answer = err.Error()
+	}
+	// 获取下一个序列号
+	seq := tinyid.NextId()
+	msg := &model.Message{
+		ObjectType:     model.MessageObjectTypeUser,
+		ObjectId:       sender.SenderId,
+		RequestId:      0,
+		SenderType:     int32(defs.SendertypeStSystem),
+		SenderId:       consts.RobotUid,
+		SenderDeviceId: 0,
+		ReceiverType:   int32(req.ReceiverType),
+		ReceiverId:     sender.SenderId,
+		ToUserIds:      FormatUserIds(req.ToUserIds),
+		Type:           int(req.MessageType),
+		Content:        answer,
+		Seq:            seq,
+		SendTime:       time.Now().UnixMilli(),
+		Status:         int32(defs.MessagestatusMsNormal),
+	}
+	// 消息持久化
+	if err := model.StoreMessage(msg); err != nil {
+		return err
+	}
+	// 查询用户在线设备
+	devices, err := DeviceService.ListOnlineByUid(sender.SenderId)
 	if err != nil {
 		return err
 	}
