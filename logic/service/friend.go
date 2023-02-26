@@ -1,7 +1,6 @@
 package service
 
 import (
-	"go-IM/logic/dao"
 	"go-IM/logic/model"
 )
 
@@ -9,19 +8,38 @@ type friendService struct{}
 
 var FriendService = new(friendService)
 
-// 新增好友
-func (*friendService) AddFriend(appId, userId, friendId int64) {
-	err := dao.FriendDao.Insert(appId, userId, friendId)
-	if err != nil {
-		panic(err)
+// AddFriend 新增好友
+func (*friendService) AddFriend(uid, fid int64) error {
+	if _, err := model.LoadUser(fid); err != nil {
+		return err
 	}
+	um, err := model.LoadUser(uid)
+	if err != nil {
+		return err
+	}
+	// 检查重复添加
+	for _, uid := range um.Friends {
+		if fid == uid {
+			return nil
+		}
+	}
+	um.Friends = append(um.Friends, fid)
+	return model.StoreUser(um)
 }
 
-// 查询好友列表
-func (*friendService) QueryFriends(userId int64) *[]model.User {
-	friends, err := dao.FriendDao.SelectFriends(userId)
+// QueryFriends 查询好友列表
+func (*friendService) QueryFriends(userId int64) ([]*model.User, error) {
+	um, err := model.LoadUser(userId)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return friends
+	flist := make([]*model.User, 0)
+	for _, uid := range um.Friends {
+		fm, err := model.LoadUser(uid)
+		if err != nil {
+			continue
+		}
+		flist = append(flist, fm)
+	}
+	return flist, nil
 }

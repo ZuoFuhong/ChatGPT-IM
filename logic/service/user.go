@@ -1,45 +1,36 @@
 package service
 
 import (
-	"go-IM/logic/dao"
 	"go-IM/logic/model"
-	"go-IM/pkg/errs"
-	"go-IM/pkg/util"
+	"go-IM/pkg/tinyid"
+	"time"
 )
 
 type userService struct{}
 
 var UserService = new(userService)
 
-// Add 添加用户（唯一用户ID）
-// 1.添加用户，2.添加用户消息序列号
-func (*userService) Add(user *model.User) int64 {
-	sf, _ := util.NewSnowflake(0, 0)
-	userId := sf.NextVal()
-	user.UserId = userId
-	affected, e := dao.UserDao.Add(user)
-	if e != nil {
-		panic(e)
+// Add 注册用户
+func (*userService) Add(um *model.User) (int64, error) {
+	now := time.Now()
+	uid := tinyid.NextId()
+	um.Id = uid
+	um.Ctime = now.UnixMilli()
+	um.Utime = now.UnixMilli()
+	if err := model.StoreUser(um); err != nil {
+		return 0, err
 	}
-	if affected == 0 {
-		panic(errs.NewHttpErr(errs.User, "user already exist"))
-	}
-	return userId
+	return uid, nil
 }
 
-// Get 获取用户信息
-func (*userService) Get(userId int64) *model.User {
-	user, err := dao.UserDao.Get(userId)
-	if err != nil {
-		panic(err)
-	}
-	return user
+// UserInfo 获取用户信息
+func (*userService) UserInfo(userId int64) (*model.User, error) {
+	return model.LoadUser(userId)
 }
 
-// Get 更新用户信息
-func (*userService) Update(user *model.User) {
-	err := dao.UserDao.Update(user)
-	if err != nil {
-		panic(err)
-	}
+// Update 更新用户信息
+func (*userService) Update(um *model.User) error {
+	now := time.Now()
+	um.Utime = now.UnixMilli()
+	return model.StoreUser(um)
 }

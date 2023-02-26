@@ -8,8 +8,6 @@ import (
 	"net/http"
 )
 
-var pushChan *chan defs.MessageItem
-
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 65536,
@@ -18,7 +16,13 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// 协议升级，Hold连接
+func init() {
+	mc := make(chan defs.MessageItem, 100)
+	service.MessageService.PushChan = mc
+	DoConsume(mc)
+}
+
+// WSHandler 协议升级，Hold连接
 func WSHandler(w http.ResponseWriter, r *http.Request) {
 	conn, e := upgrader.Upgrade(w, r, nil)
 	if e != nil {
@@ -27,21 +31,16 @@ func WSHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx := NewConnContext(conn)
 	ctx.DoConn()
-
-	messageChan := make(chan defs.MessageItem)
-	pushChan = &messageChan
-	service.MessageService.PushChan = pushChan
-	DoSend()
 }
 
-// 内部通信
-func DoSend() {
+// DoConsume 内部通信
+func DoConsume(mc chan defs.MessageItem) {
 	go func() {
 		for {
-			message := <-*pushChan
+			message := <-mc
 			ctx := load(message.ReceiverDeviceId)
 			if ctx != nil {
-				ctx.Output(defs.PackageType_RT_USER, 0, nil, message)
+				ctx.Output(defs.PackagetypeRtUser, 0, nil, message)
 			}
 		}
 	}()

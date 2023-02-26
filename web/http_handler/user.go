@@ -2,11 +2,12 @@ package http_handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
+	"go-IM/consts"
 	"go-IM/logic/model"
 	"go-IM/logic/service"
 	"go-IM/pkg/defs"
-	"go-IM/pkg/errs"
 	"go-IM/pkg/util"
 	"net/http"
 	"strconv"
@@ -17,70 +18,91 @@ type user struct{}
 
 var User = new(user)
 
-// 注册用户
+// Register 注册用户
 func (*user) Register(w http.ResponseWriter, r *http.Request) {
 	form := new(defs.RegisterUserForm)
 	err := json.NewDecoder(r.Body).Decode(&form)
 	if err != nil {
-		panic(errs.ParameterError)
+		defs.Error(w, defs.ParameterError, "参数错误")
+		return
 	}
-	user := new(model.User)
-	user.AppId, _ = strconv.ParseInt(form.AppId, 10, 64)
-	user.Nickname = form.Nickname
-	user.Sex = form.Sex
-	user.AvatarUrl = form.AvatarUrl
-	user.Extra = form.Extra
-	userId := service.UserService.Add(user)
-
-	resp := make(map[string]interface{})
-	resp["userId"] = userId
-	bytes, _ := json.Marshal(resp)
-	_, _ = w.Write(bytes)
+	// 注册用户
+	um := &model.User{
+		Nickname:  form.Nickname,
+		Sex:       form.Sex,
+		AvatarUrl: form.AvatarUrl,
+		Extra:     form.Extra,
+	}
+	userId, err := service.UserService.Add(um)
+	if err != nil {
+		defs.Error(w, defs.User, "用户注册失败")
+		return
+	}
+	// 注册设备
+	dm := new(model.Device)
+	dm.UserId = userId
+	dm.Type = model.Web
+	deviceId, err := service.DeviceService.Register(dm)
+	if err != nil {
+		defs.Error(w, defs.User, "设备注册失败")
+		return
+	}
+	resp := make(map[string]string)
+	resp["user_id"] = fmt.Sprint(userId)
+	resp["device_id"] = fmt.Sprint(deviceId)
+	defs.Ok(w, resp)
 }
 
-// 查询用户
+// Info 查询用户
 func (*user) Info(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userId, _ := strconv.ParseInt(vars["uid"], 10, 64)
-
-	user := service.UserService.Get(userId)
-	if user == nil {
-		panic(errs.NewHttpErr(errs.User, "The user does not exist"))
+	um, err := service.UserService.UserInfo(userId)
+	if err != nil {
+		defs.Error(w, defs.User, "查询用户信息失败")
+		return
+	}
+	if um == nil {
+		defs.Error(w, defs.User, "The user does not exist")
+		return
 	}
 	userVO := new(defs.UserVO)
-	userVO.UserId = strconv.FormatInt(user.UserId, 10)
-	userVO.Nickname = user.Nickname
-	userVO.AvatarUrl = user.AvatarUrl
-	userVO.Extra = user.Extra
+	userVO.UserId = strconv.FormatInt(um.Id, 10)
+	userVO.Nickname = um.Nickname
+	userVO.AvatarUrl = um.AvatarUrl
+	userVO.Extra = um.Extra
 
-	// Mock登录信息
-	deviceId := service.DeviceService.QueryTestDevice(userId, "chrome")
-	token, _ := util.GetToken(1, userId, deviceId, time.Now().Add(1*time.Hour).Unix(), util.PublicKey)
+	// 查询 Web 设备
+	dm, err := service.DeviceService.GetUserWebDevice(userId)
+	if err != nil {
+		defs.Error(w, defs.User, "查询用户设备失败")
+		return
+	}
+	token, _ := util.GetToken(userId, dm.Id, time.Now().Add(1*time.Hour).Unix(), consts.PublicKey)
 
 	resp := make(map[string]interface{})
 	resp["user"] = userVO
-	resp["deviceId"] = strconv.FormatInt(deviceId, 10)
+	resp["deviceId"] = fmt.Sprint(dm.Id)
 	resp["token"] = token
-
-	bytes, _ := json.Marshal(resp)
-	_, _ = w.Write(bytes)
+	defs.Ok(w, resp)
 }
 
-// 更新用户
+// Update 更新用户
 func (*user) Update(w http.ResponseWriter, r *http.Request) {
 	form := new(defs.UpdateUserForm)
-	err := json.NewDecoder(r.Body).Decode(&form)
-	if err != nil {
-		panic(errs.ParameterError)
+	if err := json.NewDecoder(r.Body).Decode(&form); err != nil {
+		defs.Error(w, defs.ParameterError, "参数错误")
+		return
 	}
-	user := new(model.User)
-	user.AppId, _ = strconv.ParseInt(form.AppId, 10, 64)
-	user.UserId, _ = strconv.ParseInt(form.UserId, 10, 64)
-	user.Nickname = form.Nickname
-	user.Sex = form.Sex
-	user.AvatarUrl = form.AvatarUrl
-	user.Extra = form.Extra
-	service.UserService.Update(user)
-
-	_, _ = w.Write([]byte("ok"))
+	um := new(model.User)
+	um.Id, _ = strconv.ParseInt(form.UserId, 10, 64)
+	um.Nickname = form.Nickname
+	um.Sex = form.Sex
+	um.AvatarUrl = form.AvatarUrl
+	um.Extra = form.Extra
+	if err := service.UserService.Update(um); err != nil {
+		defs.Error(w, defs.User, "更新用户信息失败")
+		return
+	}
+	defs.Ok(w, "ok")
 }

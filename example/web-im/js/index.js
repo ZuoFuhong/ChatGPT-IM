@@ -19,7 +19,6 @@ let app = new Vue({
         let userId = getQueryVariable("uid")
         await this.loadLoginUser(userId)
         await this.loadUserFriends(userId)
-        await this.loadUserGroups(userId)
         await this.initWSConn()
     },
     updated() {
@@ -60,23 +59,6 @@ let app = new Vue({
                     friends.push(friend)
                 })
                 this.friends = friends
-            }
-        },
-        async loadUserGroups(uid) {
-            let res = await AsyncGet(`group/user/groups?uid=${uid}`)
-            if (res.error_code !== undefined) {
-                alert(res.msg)
-            } else {
-                let groups = [];
-                res.forEach(function(value) {
-                    let group = {
-                        groupId: value.group_id,
-                        avatar: value.avatar_url,
-                        groupName: value.name
-                    }
-                    groups.push(group)
-                })
-                this.groupList = groups;
             }
         },
         async initWSConn() {
@@ -292,7 +274,6 @@ let app = new Vue({
             if (this.messageCache.hasOwnProperty(key)) {
                 return this.messageCache[key];
             }
-            console.log("dfadfa")
             return messageList;
         }
     }

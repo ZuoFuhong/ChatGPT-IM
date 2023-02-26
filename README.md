@@ -16,20 +16,26 @@
 
 ![封面](./doc/im/cover.jpg)
 
-### Development
+测试数据：
+
+```shell
+# 熊大
+http://localhost:63342/go-IM/example/web-im/index.html?uid=1629770111088857088
+
+# 熊二
+http://localhost:63342/go-IM/example/web-im/index.html?uid=1629770216865009664
+
+# 光头强
+http://localhost:63342/go-IM/example/web-im/index.html?uid=1629769779311022080
+```
+
+### 开发
 
 ```sh
-# clone the project
-git clone git@github.com:ZuoFuhong/go-IM.git
+go mod download
 
-# update dependency
-go mod tidy
-
-# build the project
-make
-
-# init the database
-./doc/create_table.sql
+# 默认运行在 127.0.0.1:8080
+go run main.go
 ```
 
 ### License

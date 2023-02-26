@@ -3,11 +3,11 @@ package defs
 type PackageType int
 
 const (
-	PackageType_SignIn      PackageType = 1
-	PackageType_SYNC        PackageType = 2
-	PackageType_HEARTBEAT   PackageType = 3
-	PackageType_MESSAGE_ACK PackageType = 4
-	PackageType_RT_USER     PackageType = 5
+	PackagetypeSignin     PackageType = 1
+	PackagetypeSync       PackageType = 2
+	PackagetypeHeartbeat  PackageType = 3
+	PackagetypeMessageAck PackageType = 4
+	PackagetypeRtUser     PackageType = 5
 )
 
 type Input struct {
@@ -25,7 +25,6 @@ type Output struct {
 }
 
 type SignIn struct {
-	AppId    string
 	UserId   string
 	DeviceId string
 	Token    string
@@ -44,36 +43,35 @@ type MessageACK struct {
 	ReceiveTime int64
 }
 
-// 发送者类型
+// SenderType 发送者类型
 type SenderType int32
 
 const (
-	SenderType_ST_SYSTEM SenderType = 1 // 系统
-	SenderType_ST_USER   SenderType = 2 // 用户
+	SendertypeStSystem SenderType = 1 // 系统
+	SendertypeStUser   SenderType = 2 // 用户
 )
 
 type Sender struct {
-	AppId      int64      // appId
 	SenderType SenderType // 发送者类型
-	SenderId   int64      // 发送者id
-	DeviceId   int64      // 发送者设备id
+	SenderId   int64      // 发送者ID
+	DeviceId   int64      // 发送者设备ID
 }
 
 type MessageType int32
 
 const (
-	Message_TEXT  MessageType = 1
-	Message_IMAGE MessageType = 2
-	Message_AUDIO MessageType = 3
+	MessageText  MessageType = 1
+	MessageImage MessageType = 2
+	MessageAudio MessageType = 3
 )
 
-// 接收者类型
+// ReceiverType 接收者类型
 type ReceiverType int32
 
 const (
-	ReceiverType_RT_USER         ReceiverType = 1 // 用户
-	ReceiverType_RT_NORMAL_GROUP ReceiverType = 2 // 普通群组
-	ReceiverType_RT_LARGE_GROUP  ReceiverType = 3 // 超大群组
+	ReceivertypeRtUser        ReceiverType = 1 // 用户
+	ReceivertypeRtNormalGroup ReceiverType = 2 // 普通群组
+	ReceivertypeRtLargeGroup  ReceiverType = 3 // 超大群组
 )
 
 type SendMessageReq struct {
@@ -85,16 +83,15 @@ type SendMessageReq struct {
 	IsPersist      bool
 }
 
-// 消息状态
+// MessageStatus 消息状态
 type MessageStatus int32
 
 const (
-	MessageStatus_MS_NORMAL MessageStatus = 1 // 未处理
-	MessageStatus_MS_RECALL MessageStatus = 2 // 消息撤回
+	MessagestatusMsNormal MessageStatus = 1 // 未处理
+	MessageStatusMsRecall MessageStatus = 2 // 消息撤回
 )
 
 type SendMessage struct {
-	AppId          string       // appId
 	SenderId       string       // 发送者id
 	DeviceId       string       // 发送者设备id
 	ReceiverType   ReceiverType // 接收者类型

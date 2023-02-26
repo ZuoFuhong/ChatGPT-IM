@@ -1,17 +1,30 @@
 package service
 
-import "go-IM/logic/dao"
+import (
+	"go-IM/logic/model"
+	"time"
+)
 
 type deviceAckService struct{}
 
 var DeviceAckService = new(deviceAckService)
 
-// 更新设备同步序列号
+// Update 更新设备同步序列号
 func (*deviceAckService) Update(deviceId, ack int64) error {
-	return dao.DeviceAckDao.Update(deviceId, ack)
+	dm, err := model.LoadDevice(deviceId)
+	if err != nil {
+		return err
+	}
+	dm.Ack = ack
+	dm.Utime = time.Now().UnixMilli()
+	return model.StoreDevice(dm)
 }
 
-// 获取用户最大的同步序列号
-func (*deviceAckService) GetMaxByUserId(appId, userId int64) (int64, error) {
-	return dao.DeviceAckDao.GetMaxByUserId(appId, userId)
+// GetDeviceMaxSeq 获取设备最大的同步序列号
+func (*deviceAckService) GetDeviceMaxSeq(deviceId int64) (int64, error) {
+	dm, err := model.LoadDevice(deviceId)
+	if err != nil {
+		return 0, err
+	}
+	return dm.Ack, nil
 }

@@ -16,7 +16,6 @@ const PreConn = -1 // 设备第二次重连时，标记设备的上一条连接
 
 type ConnContext struct {
 	Conn     *websocket.Conn
-	AppId    int64
 	DeviceId int64
 	UserId   int64
 }
@@ -28,8 +27,6 @@ func NewConnContext(conn *websocket.Conn) *ConnContext {
 }
 
 func (ctx *ConnContext) DoConn() {
-	util.RecoverPanic()
-
 	for {
 		err := ctx.Conn.SetReadDeadline(time.Now().Add(12 * time.Minute))
 		if err != nil {
@@ -46,46 +43,41 @@ func (ctx *ConnContext) DoConn() {
 }
 
 func (ctx *ConnContext) HandlePackage(data []byte) {
-	var input defs.Input
-	err := json.Unmarshal(data, &input)
-	if err != nil {
+	input := new(defs.Input)
+	if err := json.Unmarshal(data, input); err != nil {
 		log.Print(err)
 		ctx.Release()
 		return
 	}
 	switch input.Type {
-	case defs.PackageType_SignIn:
+	case defs.PackagetypeSignin:
 		ctx.SignIn(input)
-	case defs.PackageType_SYNC:
+	case defs.PackagetypeSync:
 		ctx.Sync(input)
-	case defs.PackageType_HEARTBEAT:
+	case defs.PackagetypeHeartbeat:
 		ctx.Heartbeat(input)
-	case defs.PackageType_MESSAGE_ACK:
+	case defs.PackagetypeMessageAck:
 		ctx.MessageACK(input)
-	case defs.PackageType_RT_USER:
+	case defs.PackagetypeRtUser:
 		ctx.SendToUser(input)
 	}
 }
 
-// 登录鉴权
-func (ctx *ConnContext) SignIn(input defs.Input) {
+// SignIn 登录鉴权
+func (ctx *ConnContext) SignIn(input *defs.Input) {
 	signIn := new(defs.SignIn)
-	err := json.Unmarshal([]byte(input.Data), &signIn)
-	if err != nil {
+	if err := json.Unmarshal([]byte(input.Data), &signIn); err != nil {
 		log.Print(err)
 		ctx.Release()
 		return
 	}
-	appId, _ := strconv.ParseInt(signIn.AppId, 10, 64)
 	userId, _ := strconv.ParseInt(signIn.UserId, 10, 64)
 	deviceId, _ := strconv.ParseInt(signIn.DeviceId, 10, 64)
-	err = service.AuthService.SignIn(appId, userId, deviceId, signIn.Token, "", 0)
-	if err != nil {
+	if err := service.AuthService.SignIn(userId, deviceId, signIn.Token, "", 0); err != nil {
 		log.Print(err)
 		ctx.Release()
 		return
 	}
-	ctx.AppId = appId
 	ctx.UserId = userId
 	ctx.DeviceId = deviceId
 
@@ -95,29 +87,27 @@ func (ctx *ConnContext) SignIn(input defs.Input) {
 		preCtx.DeviceId = PreConn
 	}
 	store(ctx.DeviceId, ctx)
-	ctx.Output(defs.PackageType_SignIn, input.RequestId, err, "OK")
+	ctx.Output(defs.PackagetypeSignin, input.RequestId, nil, "OK")
 }
 
-// 离线消息同步
-func (ctx *ConnContext) Sync(input defs.Input) {
+// Sync 离线消息同步
+func (ctx *ConnContext) Sync(input *defs.Input) {
 	var sync defs.SyncInput
-	err := json.Unmarshal([]byte(input.Data), &sync)
-	if err != nil {
+	if err := json.Unmarshal([]byte(input.Data), &sync); err != nil {
 		log.Print(err)
 		ctx.Release()
 		return
 	}
 	seq, _ := strconv.ParseInt(sync.Seq, 10, 64)
-
-	messageList, err := service.MessageService.ListByUserIdAndSeq(ctx.AppId, ctx.UserId, seq)
+	msgList, err := service.MessageService.ListDeviceMessageBySeq(ctx.UserId, ctx.DeviceId, seq)
 	var syncOutput defs.SyncOutput
 	if err == nil {
-		messageItems := make([]defs.MessageItem, 0, 5)
-		for _, v := range *messageList {
+		messageItems := make([]defs.MessageItem, 0)
+		for _, v := range msgList {
 			var messageItem defs.MessageItem
 			messageItem.SenderId = strconv.FormatInt(v.SenderId, 10)
 			messageItem.ReceiverId = strconv.FormatInt(v.ReceiverId, 10)
-			messageItem.SendTime = util.FormatDatetime(v.SendTime, util.YYYYMMDDHHMMSS)
+			messageItem.SendTime = util.FormatDatetime(v.SendTime)
 			messageItem.Type = defs.MessageType(v.Type)
 			messageItem.Content = v.Content
 			messageItem.Seq = strconv.FormatInt(v.Seq, 10)
@@ -125,49 +115,45 @@ func (ctx *ConnContext) Sync(input defs.Input) {
 		}
 		syncOutput = defs.SyncOutput{Messages: messageItems}
 	}
-	ctx.Output(defs.PackageType_SYNC, input.RequestId, err, &syncOutput)
+	ctx.Output(defs.PackagetypeSync, input.RequestId, err, &syncOutput)
 }
 
-func (ctx *ConnContext) Heartbeat(input defs.Input) {
-	ctx.Output(defs.PackageType_HEARTBEAT, input.RequestId, nil, "PONG")
-	log.Print("device_id：", ctx.DeviceId, " PING")
+func (ctx *ConnContext) Heartbeat(input *defs.Input) {
+	log.Printf("device_id:%d %s", ctx.DeviceId, input.Data)
+	ctx.Output(defs.PackagetypeHeartbeat, input.RequestId, nil, "PONG")
 }
 
-// 消息回执
-func (ctx *ConnContext) MessageACK(input defs.Input) {
+// MessageACK 消息回执
+func (ctx *ConnContext) MessageACK(input *defs.Input) {
 	var messageACK defs.MessageACK
-	err := json.Unmarshal([]byte(input.Data), &messageACK)
-	if err != nil {
+	if err := json.Unmarshal([]byte(input.Data), &messageACK); err != nil {
 		log.Print(err)
 		ctx.Release()
 		return
 	}
-	err = service.DeviceAckService.Update(ctx.DeviceId, messageACK.DeviceAck)
+	err := service.DeviceAckService.Update(ctx.DeviceId, messageACK.DeviceAck)
 	if err != nil {
 		log.Print(err)
 	}
-	ctx.Output(defs.PackageType_MESSAGE_ACK, input.RequestId, err, "OK")
+	ctx.Output(defs.PackagetypeMessageAck, input.RequestId, err, "OK")
 }
 
-func (ctx *ConnContext) SendToUser(input defs.Input) {
+func (ctx *ConnContext) SendToUser(input *defs.Input) {
 	var message defs.SendMessage
-	err := json.Unmarshal([]byte(input.Data), &message)
-	if err != nil {
+	if err := json.Unmarshal([]byte(input.Data), &message); err != nil {
 		log.Print(err)
 		ctx.Release()
 		return
 	}
-	appId, _ := strconv.ParseInt(message.AppId, 10, 64)
 	senderId, _ := strconv.ParseInt(message.SenderId, 10, 64)
 	deviceId, _ := strconv.ParseInt(message.DeviceId, 10, 64)
-	sender := defs.Sender{
-		AppId:      appId,
-		SenderType: defs.SenderType_ST_SYSTEM,
+	sender := &defs.Sender{
+		SenderType: defs.SendertypeStSystem,
 		SenderId:   senderId,
 		DeviceId:   deviceId,
 	}
 	receiverId, _ := strconv.ParseInt(message.ReceiverId, 10, 64)
-	messageReq := defs.SendMessageReq{
+	messageReq := &defs.SendMessageReq{
 		ReceiverType:   message.ReceiverType,
 		ReceiverId:     receiverId,
 		MessageType:    message.MessageType,
@@ -175,8 +161,8 @@ func (ctx *ConnContext) SendToUser(input defs.Input) {
 		ToUserIds:      message.ToUserIds,
 		IsPersist:      true,
 	}
-	err = service.MessageService.SendToFriend(input.RequestId, sender, messageReq)
-	if err != nil {
+	// 1.消息持久化 2.查询用户在线设备 3.消费发送给用户设备
+	if err := service.MessageService.Send(input.RequestId, sender, messageReq); err != nil {
 		log.Print(err)
 		ctx.Release()
 		return
@@ -205,7 +191,7 @@ func (ctx *ConnContext) Output(pt defs.PackageType, requestId int64, err error, 
 	}
 }
 
-// 释放TCP连接
+// Release 释放 TCP 连接
 func (ctx *ConnContext) Release() {
 	e := ctx.Conn.Close()
 	if e != nil {
@@ -214,6 +200,6 @@ func (ctx *ConnContext) Release() {
 	// 设备下线
 	if ctx.DeviceId != PreConn {
 		clear(ctx.DeviceId)
-		_ = service.DeviceService.Offline(ctx.AppId, ctx.UserId, ctx.DeviceId)
+		_ = service.DeviceService.Offline(ctx.DeviceId)
 	}
 }
