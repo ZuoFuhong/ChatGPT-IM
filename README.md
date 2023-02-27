@@ -1,4 +1,4 @@
-## 类似于 ChatGPT 聊天机器人的 IM 系统
+## 集成 ChatGPT 聊天机器人的 IM 系统
 
 本项目是由[gim](https://github.com/alberliu/gim) 项目fork而来，在此基础上进行了二次开发。目的在于开发一个基于websocket的聊天（IM）室，
 并且支持**单用户多设备支持，离线消息同步**。在开发的过程中，砍掉了`gim`的gRPC、TCP服务端、Redis缓存等模块。同时，移除`go.mod`中大量的依赖，
