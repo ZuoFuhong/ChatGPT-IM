@@ -7,19 +7,20 @@ import (
 	"go-IM/pkg/util"
 )
 
-type CompletionsRequest struct {
-	Model       string  `json:"model"`
-	Prompt      string  `json:"prompt"`
-	Temperature float64 `json:"temperature"`
-	N           int8    `json:"n"`
-	Stream      bool    `json:"stream"`
-	MaxTokens   int32   `json:"max_tokens"`
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+type ChatCompletionRequest struct {
+	Model    string    `json:"model"`
+	Messages []Message `json:"messages"`
 }
 
 type Choice struct {
-	Text         string `json:"text"`
-	Index        int32  `json:"index"`
-	FinishReason string `json:"finish_reason"`
+	Message      Message `json:"message"`
+	Index        int32   `json:"index"`
+	FinishReason string  `json:"finish_reason"`
 }
 
 type Usage struct {
@@ -28,7 +29,7 @@ type Usage struct {
 	TotalTokens      int32 `json:"total_tokens"`
 }
 
-type CompletionsResponse struct {
+type ChatCompletionResponse struct {
 	Id      string   `json:"id"`
 	Object  string   `json:"object"`
 	Created int64    `json:"created"`
@@ -37,32 +38,37 @@ type CompletionsResponse struct {
 	Usage   Usage    `json:"usage"`
 }
 
-// ProxyRobotPost 代理请求 Openai API 接口
-func ProxyRobotPost(prompt string) (string, error) {
+// ProxyRobotPost 代理请求 OpenAI Chat completion 接口
+func ProxyRobotPost(content string) (string, error) {
 	headers := map[string]string{
 		"Authorization": "Bearer " + consts.APIKey,
 		"Content-Type":  "application/json",
 	}
-	req := &CompletionsRequest{
-		Model:       "text-davinci-003",
-		Prompt:      prompt,
-		Temperature: 0.7,
-		N:           1,
-		Stream:      false,
-		MaxTokens:   100,
+	req := &ChatCompletionRequest{
+		Model: "gpt-3.5-turbo",
+		Messages: []Message{
+			{
+				Role:    "system",
+				Content: "You are a helpful assistant.",
+			},
+			{
+				Role:    "user",
+				Content: content,
+			},
+		},
 	}
 	reqBytes, _ := json.Marshal(req)
-	rspBody, err := util.DefaultClient.DoReq("POST", "https://api.openai.com/v1/completions", bytes.NewBuffer(reqBytes), headers)
+	rspBody, err := util.DefaultClient.DoReq("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(reqBytes), headers)
 	if err != nil {
 		return "", err
 	}
-	rsp := &CompletionsResponse{}
+	rsp := &ChatCompletionResponse{}
 	if err := json.Unmarshal(rspBody, rsp); err != nil {
 		return "", err
 	}
 	var answer string
 	for _, choice := range rsp.Choices {
-		answer += choice.Text
+		answer += choice.Message.Content
 	}
 	return answer, nil
 }
