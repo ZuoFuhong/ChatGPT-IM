@@ -1,6 +1,6 @@
 ## ChatGPT 聊天机器人的 IM 系统
 
-本项目是由[gim](https://github.com/alberliu/gim) 项目 fork 而来，在此基础上进行了二次开发。目的在于开发一个基于 Websocket 集成 ChatGPT 聊天机器人的 IM 系统。
+实时通讯 IM 系统接入 ChatGPT completion API 的绝佳实践案例，在会话中接入 OpenAI 最新发布的 Chat completion API，可以回答各种问题，像 ChatGPT 一样灵性。
 
 **功能特性**
 
@@ -8,7 +8,8 @@
 - 2.`A` 新增 web 模块，提供 `RESTFul API` 接口，可以用来注册设备、创建群组、添加用户、添加好友等。
 - 3.`A` 新增聊天室 Demo，在 `example/web-im` 目录中提供一个 H5 实现的聊天室（仅测试过：chrome 浏览器）。
 - 4.`A` 使用嵌入数据库 Bolt 作为数据源，免去用户环境搭建，同时内置演示数据，方便体验
-- 5.`A` 接入 OpenAI 云端 API 服务，实现类似 ChatGPT 的聊天机器人，可以回答各种问题
+- 5.`A` 新增接入 OpenAI 云端 API 服务，实现类似 ChatGPT 的聊天机器人，可以回答各种问题
+- 6.`A` 新增接入 OpenAI 最新发布的 Chat completion API，回答问题像 ChatGPT 一样灵性
 
 ### 演示 Demo
 
