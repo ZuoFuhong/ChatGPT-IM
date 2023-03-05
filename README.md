@@ -12,6 +12,7 @@
 - 4.`A` 使用嵌入数据库 Bolt 作为数据源，免去用户环境搭建，同时内置演示数据，方便体验
 - 5.`A` 新增接入 OpenAI 云端 API 服务，实现类似 ChatGPT 的聊天机器人，可以回答各种问题
 - 6.`A` 新增接入 OpenAI 最新发布的 Chat completion API，回答问题像 ChatGPT 一样灵性
+- 7.`A` 新增接入 OpenAI 最新发布的 Whisper API 实现语音转文字
 
 ### 演示 Demo
 
