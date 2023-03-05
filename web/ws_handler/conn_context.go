@@ -9,6 +9,7 @@ import (
 	"go-IM/pkg/util"
 	"log"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -18,6 +19,7 @@ type ConnContext struct {
 	Conn     *websocket.Conn
 	DeviceId int64
 	UserId   int64
+	mux      sync.Mutex
 }
 
 func NewConnContext(conn *websocket.Conn) *ConnContext {
@@ -184,6 +186,9 @@ func (ctx *ConnContext) Output(pt defs.PackageType, requestId int64, err error, 
 		log.Print(err)
 		return
 	}
+	// 不支持并发写入
+	ctx.mux.Lock()
+	defer ctx.mux.Unlock()
 	err = ctx.Conn.WriteMessage(websocket.TextMessage, outputBytes)
 	if err != nil {
 		log.Print(err)
