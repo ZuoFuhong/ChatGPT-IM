@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web-IM</title>
+    <title>ChatGPT-IM</title>
     <link rel="stylesheet" href="./css/index.css">
     <style type="text/css">
         .web-app {
@@ -165,8 +165,9 @@
                         <div class="plugin-item" v-on:click="notSupport">
                             <img src="./assets/icon/file.svg" alt="">
                         </div>
-                        <div class="plugin-item" v-on:click="notSupport">
-                            <img src="./assets/icon/audio.svg" alt="">
+                        <div class="plugin-item" v-on:click="audioRecord">
+                            <img v-if="recording" src="./assets/icon/audio-record.svg" alt="">
+                            <img v-if="!recording" src="./assets/icon/audio.svg" alt="">
                         </div>
                         <div class="plugin-item" v-on:click="notSupport">
                             <img src="./assets/icon/video.svg" alt="">
@@ -266,6 +267,7 @@
     <script src="js/axios.js"></script>
     <script src="js/websocket.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/audio.js"></script>
     <script src="js/index.js"></script>
 </body>
 </html>

@@ -2,6 +2,8 @@
 
 实时通讯 IM 系统接入 ChatGPT completion API 的绝佳实践案例，在会话中接入 OpenAI 最新发布的 Chat completion API，可以回答各种问题，像 ChatGPT 一样灵性。
 
+![架构设计](./doc/im/ChatGPT-IM.jpg)
+
 **功能特性**
 
 - 1.`A` 新增好友列表

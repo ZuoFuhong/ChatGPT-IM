@@ -1,15 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="138px" height="122px" viewBox="0 0 138 122" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
-    <title>audio</title>
-    <desc>Created with Sketch.</desc>
-    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="画板" transform="translate(-814.000000, -50.000000)" stroke="#5B5B5B">
-            <g id="audio" transform="translate(816.000000, 52.000000)">
-                <path d="M134,82.1557935 C134,45.4288577 114.971836,-7.10542736e-15 67,-7.10542736e-15 C19.0281642,-7.10542736e-15 0,45.4288577 0,82.1557935" id="路径" stroke-width="4"></path>
-                <rect id="矩形" fill="#5B5B5B" x="94" y="68" width="12" height="51"></rect>
-                <rect id="矩形" fill="#5B5B5B" x="28" y="68" width="12" height="51"></rect>
-            </g>
-        </g>
-    </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="none" version="1.1" width="144" height="224" viewBox="0 0 144 224"><defs><clipPath id="master_svg0_3_02"><rect x="0" y="0" width="144" height="224" rx="0"/></clipPath></defs><g style="mix-blend-mode:passthrough" clip-path="url(#master_svg0_3_02)"><rect x="0" y="0" width="144" height="224" rx="0" fill="#FFFFFF" fill-opacity="1"/><g style="mix-blend-mode:passthrough"><rect x="39" y="5" width="66" height="141" rx="33" fill-opacity="0" stroke-opacity="1" stroke="#5B5B5B" fill="none" stroke-width="8"/></g><g style="mix-blend-mode:passthrough"><path d="M141.97,109.485909Q137.889,142.8375,120.354,159.5722Q102.6692,176.44979999999998,71.9399,175.98770000000002Q41.2803,175.52679999999998,23.6463,158.69740000000002Q6.116844,141.9679,2.0313,109.499386L9.9687,108.500614Q13.69895,138.1454,29.1695,152.91Q44.5355,167.5748,72.0601,167.9886Q99.515,168.4014,114.83,153.7849Q130.296,139.0256,134.03,108.514091L141.97,109.485909Z" fill="#5B5B5B" fill-opacity="1"/></g><g style="mix-blend-mode:passthrough"><path d="M68,222L68,175L76,175L76,222L68,222Z" fill="#5B5B5B" fill-opacity="1"/></g><g style="mix-blend-mode:passthrough"><path d="M104,223L40,223L40,215L104,215L104,223Z" fill="#5B5B5B" fill-opacity="1"/></g></g></svg>

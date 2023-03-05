@@ -13,13 +13,16 @@ let app = new Vue({
         groupList: [],
         messageCache: {},
         wsclient: null,
-        seq: "0"
+        seq: "0",
+        audioDevice: null,
+        recording: false
     },
     async created() {
         let userId = getQueryVariable("uid")
         await this.loadLoginUser(userId)
         await this.loadUserFriends(userId)
         await this.initWSConn()
+        await this.initAudioDevice()
     },
     updated() {
         this.$nextTick(() => {
@@ -28,6 +31,47 @@ let app = new Vue({
         });
     },
     methods: {
+        // 初始化音频驱动
+        async initAudioDevice() {
+            const that = this
+            let audioDevice = new AudioRecorder()
+            audioDevice.getAudioRecorderDevice()
+            // 注册回调-音频转文本
+            audioDevice.addOnStopCallback(function(blob) {
+                var data = new FormData()
+                data.append('model', 'whisper-1')
+                data.append('file', blob, 'translate_tts.mp3')
+
+                const xhr = new XMLHttpRequest()
+                // xhr.withCredentials = true
+                xhr.addEventListener('readystatechange', function() {
+                    if(this.readyState === 4) {
+                        const rsp = JSON.parse(this.responseText)
+                        // 发送转录的文本
+                        that.wsClientSendToUser(rsp.text)
+                    }
+                })
+                xhr.open('POST', 'https://api.openai.com/v1/audio/transcriptions')
+                // 下个版本再处理 API Key 泄露问题
+                xhr.setRequestHeader('Authorization', 'Bearer sk-xxxxx')
+                xhr.send(data)
+            })
+            this.audioDevice = audioDevice;
+        },
+        // 录制音频
+        audioRecord() {
+            if (!this.recording) {
+                // 开始录制
+                console.log('start audio record')
+                this.audioDevice.startRecord()
+                this.recording = true
+            } else {
+                // 停止录制
+                console.log('stop audio record')
+                this.audioDevice.stopRecord()
+                this.recording = false
+            }
+        },
         async loadLoginUser(uid) {
             let res = await AsyncGet(`user/info?uid=${uid}`)
             if (res.error_code !== undefined) {
