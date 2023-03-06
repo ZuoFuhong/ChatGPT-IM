@@ -42,6 +42,10 @@ go mod download
 go run main.go
 ```
 
+### 博客
+
+- [OpenAI Chat completion API 入门指南](https://www.cnblogs.com/marszuo/p/17177286.html)
+
 ### License
 
 The project is licensed under the MIT license.
