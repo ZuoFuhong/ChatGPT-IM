@@ -16,7 +16,7 @@
 
 ### 演示 Demo
 
-**B站视频**：https://www.bilibili.com/video/BV1uZ4y1H7yy)
+**B站视频**：https://www.bilibili.com/video/BV1eM41147jN/
 
 ![封面](./doc/im/cover-openai.jpg)
 
