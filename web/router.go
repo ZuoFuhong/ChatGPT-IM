@@ -25,5 +25,6 @@ func (r *Router) RegisterHandler() {
 	r.muxr.Handle("/user/update", chain.ThenFunc(http_handler.User.Update)).Methods("PUT")
 	r.muxr.Handle("/friend/add", chain.ThenFunc(http_handler.Friend.AddFriend)).Methods("POST")
 	r.muxr.Handle("/friend/list", chain.ThenFunc(http_handler.Friend.ListFriend)).Methods("GET").Queries("uid", "{uid}")
+	r.muxr.Handle("/audio/transcriptions", chain.ThenFunc(http_handler.Media.AudioTranscriptions)).Methods("POST")
 	r.muxr.Handle("/ws", chain.ThenFunc(ws_handler.WSHandler)).Methods("GET")
 }

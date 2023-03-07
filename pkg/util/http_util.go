@@ -33,7 +33,6 @@ func (c *HttpClient) DoReq(method, url string, reqBody io.Reader, header map[str
 		return
 	}
 	// 默认基于JSON请求类型，如果是其他类型，可以通过header参数重置
-	req.Header.Set("Content-Type", "application/json;charset=utf8")
 	for k, v := range header {
 		req.Header.Set(k, v)
 	}

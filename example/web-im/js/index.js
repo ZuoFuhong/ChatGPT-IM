@@ -51,9 +51,7 @@ let app = new Vue({
                         that.wsClientSendToUser(rsp.text)
                     }
                 })
-                xhr.open('POST', 'https://api.openai.com/v1/audio/transcriptions')
-                // 下个版本再处理 API Key 泄露问题
-                xhr.setRequestHeader('Authorization', 'Bearer sk-xxxxx')
+                xhr.open('POST', config.BASE_URL + '/audio/transcriptions')
                 xhr.send(data)
             })
             this.audioDevice = audioDevice;
