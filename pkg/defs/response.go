@@ -13,6 +13,7 @@ const (
 	Message = 10004
 	User    = 10005
 	Friend  = 10006
+	Media   = 10007
 )
 
 const (

@@ -48,4 +48,4 @@ go run main.go
 
 ### License
 
-The project is licensed under the MIT license.
+This project is licensed under the [Apache 2.0 license](https://github.com/ZuoFuhong/ChatGPT-IM/blob/master/LICENSE).
