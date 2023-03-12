@@ -13,7 +13,7 @@
 - 5.`A` 新增接入 OpenAI 云端 API 服务，实现类似 ChatGPT 的聊天机器人，可以回答各种问题
 - 6.`A` 新增接入 OpenAI 最新发布的 Chat completion API，回答问题像 ChatGPT 一样灵性
 - 7.`A` 新增接入 OpenAI 最新发布的 Whisper API 实现语音转文字
-- 8.`A` 新增 ChatGPT 桌面端，使用 tauri 框架构建的桌面应用程序
+- 8.`A` 新增 ChatGPT IM 桌面端，使用 tauri 构建的桌面应用程序
 
 ### 演示 Demo
 
