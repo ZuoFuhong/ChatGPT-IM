@@ -1,12 +1,12 @@
 package service
 
 import (
+	"ChatGPT-IM/backend/consts"
+	model2 "ChatGPT-IM/backend/logic/model"
+	"ChatGPT-IM/backend/pkg/defs"
+	"ChatGPT-IM/backend/pkg/tinyid"
+	"ChatGPT-IM/backend/pkg/util"
 	"errors"
-	"go-IM/consts"
-	"go-IM/logic/model"
-	"go-IM/pkg/defs"
-	"go-IM/pkg/tinyid"
-	"go-IM/pkg/util"
 	"log"
 	"strconv"
 	"strings"
@@ -20,7 +20,7 @@ type messageService struct {
 var MessageService = new(messageService)
 
 // ListDeviceMessageBySeq 查询设备落后的消息
-func (*messageService) ListDeviceMessageBySeq(uid, deviceId, seq int64) ([]*model.Message, error) {
+func (*messageService) ListDeviceMessageBySeq(uid, deviceId, seq int64) ([]*model2.Message, error) {
 	var err error
 	if seq == 0 {
 		seq, err = DeviceAckService.GetDeviceMaxSeq(deviceId)
@@ -28,7 +28,7 @@ func (*messageService) ListDeviceMessageBySeq(uid, deviceId, seq int64) ([]*mode
 			return nil, err
 		}
 	}
-	return model.ListBySeq(model.MessageObjectTypeUser, uid, seq)
+	return model2.ListBySeq(model2.MessageObjectTypeUser, uid, seq)
 }
 
 // Send 消息发送
@@ -70,8 +70,8 @@ func (s *messageService) SendToUser(requestId int64, sender *defs.Sender, toUser
 
 	// 获取下一个序列号
 	seq := tinyid.NextId()
-	msg := &model.Message{
-		ObjectType:     model.MessageObjectTypeUser,
+	msg := &model2.Message{
+		ObjectType:     model2.MessageObjectTypeUser,
 		ObjectId:       toUserId,
 		RequestId:      requestId,
 		SenderType:     int32(sender.SenderType),
@@ -88,7 +88,7 @@ func (s *messageService) SendToUser(requestId int64, sender *defs.Sender, toUser
 	}
 	// 消息持久化
 	if req.IsPersist {
-		if err := model.StoreMessage(msg); err != nil {
+		if err := model2.StoreMessage(msg); err != nil {
 			return err
 		}
 	}
@@ -115,8 +115,8 @@ func (s *messageService) RobotRelay(sender *defs.Sender, req *defs.SendMessageRe
 	}
 	// 获取下一个序列号
 	seq := tinyid.NextId()
-	msg := &model.Message{
-		ObjectType:     model.MessageObjectTypeUser,
+	msg := &model2.Message{
+		ObjectType:     model2.MessageObjectTypeUser,
 		ObjectId:       sender.SenderId,
 		RequestId:      0,
 		SenderType:     int32(defs.SendertypeStSystem),
@@ -132,7 +132,7 @@ func (s *messageService) RobotRelay(sender *defs.Sender, req *defs.SendMessageRe
 		Status:         int32(defs.MessagestatusMsNormal),
 	}
 	// 消息持久化
-	if err := model.StoreMessage(msg); err != nil {
+	if err := model2.StoreMessage(msg); err != nil {
 		return err
 	}
 	// 查询用户在线设备
@@ -150,9 +150,9 @@ func (s *messageService) RobotRelay(sender *defs.Sender, req *defs.SendMessageRe
 }
 
 // SendToDevice 将消息发送给设备
-func (s *messageService) SendToDevice(device *model.Device, msg *model.Message) error {
+func (s *messageService) SendToDevice(device *model2.Device, msg *model2.Message) error {
 	// 目前仅支持推送 Web
-	if device.Status == model.DeviceOnLine && device.Type == model.Web {
+	if device.Status == model2.DeviceOnLine && device.Type == model2.Web {
 		var messageItem defs.MessageItem
 		messageItem.SenderId = strconv.FormatInt(msg.SenderId, 10)
 		messageItem.ReceiverId = strconv.FormatInt(msg.ReceiverId, 10)
@@ -181,7 +181,7 @@ func FormatUserIds(userId []string) string {
 // SendToGroup 消息发送至群组（使用写扩散）
 func (s *messageService) SendToGroup(requestId int64, sender *defs.Sender, req *defs.SendMessageReq) error {
 	// Todo: 当前没有实现查询群组成员
-	users := make([]*model.GroupUser, 0)
+	users := make([]*model2.GroupUser, 0)
 	if sender.SenderType == defs.SendertypeStUser && !IsInGroup(users, sender.SenderId) {
 		log.Print(sender.SenderId, req.ReceiverId, "不在群组内")
 		return errors.New("not in group")
@@ -198,7 +198,7 @@ func (s *messageService) SendToGroup(requestId int64, sender *defs.Sender, req *
 }
 
 // IsInGroup 检查群组成员
-func IsInGroup(users []*model.GroupUser, userId int64) bool {
+func IsInGroup(users []*model2.GroupUser, userId int64) bool {
 	for i := range users {
 		if users[i].UserId == userId {
 			return true
@@ -210,7 +210,7 @@ func IsInGroup(users []*model.GroupUser, userId int64) bool {
 // SendToChatRoom 消息发送至聊天室（读扩散）
 func (s *messageService) SendToChatRoom(requestId int64, sender *defs.Sender, req *defs.SendMessageReq) error {
 	// Todo: 当前没有实现查询群组成员
-	users := make([]*model.GroupUser, 0)
+	users := make([]*model2.GroupUser, 0)
 	receiverId := req.ReceiverId
 	if !IsInGroup(users, sender.SenderId) {
 		return errors.New("not in group")
@@ -218,8 +218,8 @@ func (s *messageService) SendToChatRoom(requestId int64, sender *defs.Sender, re
 	if req.IsPersist {
 		// 获取下一个序列号
 		seq := tinyid.NextId()
-		msg := &model.Message{
-			ObjectType:     model.MessageObjectTypeGroup,
+		msg := &model2.Message{
+			ObjectType:     model2.MessageObjectTypeGroup,
 			ObjectId:       receiverId,
 			RequestId:      requestId,
 			SenderType:     int32(sender.SenderType),
@@ -234,7 +234,7 @@ func (s *messageService) SendToChatRoom(requestId int64, sender *defs.Sender, re
 			SendTime:       time.Now().UnixMilli(),
 			Status:         int32(defs.MessagestatusMsNormal),
 		}
-		if err := model.StoreMessage(msg); err != nil {
+		if err := model2.StoreMessage(msg); err != nil {
 			return err
 		}
 	}

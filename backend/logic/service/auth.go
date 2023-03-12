@@ -1,9 +1,9 @@
 package service
 
 import (
+	"ChatGPT-IM/backend/consts"
+	"ChatGPT-IM/backend/pkg/util"
 	"errors"
-	"go-IM/consts"
-	"go-IM/pkg/util"
 	"time"
 )
 

@@ -1,10 +1,10 @@
 package service
 
 import (
+	"ChatGPT-IM/backend/consts"
+	"ChatGPT-IM/backend/pkg/util"
 	"bytes"
 	"encoding/json"
-	"go-IM/consts"
-	"go-IM/pkg/util"
 )
 
 type Message struct {

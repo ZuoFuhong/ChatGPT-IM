@@ -1,8 +1,8 @@
 package main
 
 import (
-	"go-IM/consts"
-	"go-IM/web"
+	"ChatGPT-IM/backend/consts"
+	"ChatGPT-IM/backend/web"
 )
 
 func main() {

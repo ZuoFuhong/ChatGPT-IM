@@ -1,8 +1,8 @@
 package service
 
 import (
-	"go-IM/logic/model"
-	"go-IM/pkg/tinyid"
+	"ChatGPT-IM/backend/logic/model"
+	"ChatGPT-IM/backend/pkg/tinyid"
 	"time"
 )
 

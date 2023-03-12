@@ -1,10 +1,10 @@
 package model
 
 import (
+	"ChatGPT-IM/backend/pkg/tinyid"
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/stretchr/testify/assert"
-	"go-IM/pkg/tinyid"
 	"testing"
 )
 

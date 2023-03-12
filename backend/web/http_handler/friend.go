@@ -1,10 +1,10 @@
 package http_handler
 
 import (
+	"ChatGPT-IM/backend/logic/service"
+	defs2 "ChatGPT-IM/backend/pkg/defs"
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"go-IM/logic/service"
-	"go-IM/pkg/defs"
 	"net/http"
 	"strconv"
 )
@@ -15,18 +15,18 @@ var Friend = new(friend)
 
 // AddFriend 添加好友
 func (*friend) AddFriend(w http.ResponseWriter, r *http.Request) {
-	form := new(defs.AddFriendForm)
+	form := new(defs2.AddFriendForm)
 	if err := json.NewDecoder(r.Body).Decode(&form); err != nil {
-		defs.Error(w, defs.ParameterError, "参数错误")
+		defs2.Error(w, defs2.ParameterError, "参数错误")
 		return
 	}
 	userId, _ := strconv.ParseInt(form.UserId, 10, 64)
 	friendId, _ := strconv.ParseInt(form.FriendId, 10, 64)
 	if err := service.FriendService.AddFriend(userId, friendId); err != nil {
-		defs.Error(w, defs.Friend, "添加好友失败")
+		defs2.Error(w, defs2.Friend, "添加好友失败")
 		return
 	}
-	defs.Ok(w, "ok")
+	defs2.Ok(w, "ok")
 }
 
 // ListFriend 查询好友
@@ -36,12 +36,12 @@ func (*friend) ListFriend(w http.ResponseWriter, r *http.Request) {
 
 	friends, err := service.FriendService.QueryFriends(userId)
 	if err != nil {
-		defs.Error(w, defs.Friend, "查询好友失败")
+		defs2.Error(w, defs2.Friend, "查询好友失败")
 		return
 	}
-	vmvoList := make([]*defs.UserVO, 0)
+	vmvoList := make([]*defs2.UserVO, 0)
 	for _, um := range friends {
-		umvo := &defs.UserVO{
+		umvo := &defs2.UserVO{
 			UserId:    strconv.FormatInt(um.Id, 10),
 			Nickname:  um.Nickname,
 			AvatarUrl: um.AvatarUrl,
@@ -49,5 +49,5 @@ func (*friend) ListFriend(w http.ResponseWriter, r *http.Request) {
 		}
 		vmvoList = append(vmvoList, umvo)
 	}
-	defs.Ok(w, vmvoList)
+	defs2.Ok(w, vmvoList)
 }

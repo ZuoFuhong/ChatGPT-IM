@@ -1,8 +1,8 @@
 package util
 
 import (
+	"ChatGPT-IM/backend/consts"
 	"fmt"
-	"go-IM/consts"
 	"testing"
 )
 

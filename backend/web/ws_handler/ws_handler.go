@@ -1,9 +1,9 @@
 package ws_handler
 
 import (
+	"ChatGPT-IM/backend/logic/service"
+	"ChatGPT-IM/backend/pkg/defs"
 	"github.com/gorilla/websocket"
-	"go-IM/logic/service"
-	"go-IM/pkg/defs"
 	"log"
 	"net/http"
 )

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"go-IM/logic/model"
+	"ChatGPT-IM/backend/logic/model"
 )
 
 type friendService struct{}

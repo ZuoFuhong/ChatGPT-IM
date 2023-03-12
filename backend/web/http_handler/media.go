@@ -1,11 +1,11 @@
 package http_handler
 
 import (
+	"ChatGPT-IM/backend/consts"
+	"ChatGPT-IM/backend/pkg/defs"
+	"ChatGPT-IM/backend/pkg/util"
 	"bytes"
 	"fmt"
-	"go-IM/consts"
-	"go-IM/pkg/defs"
-	"go-IM/pkg/util"
 	"io"
 	"mime/multipart"
 	"net/http"

@@ -1,12 +1,12 @@
 package ws_handler
 
 import (
+	service2 "ChatGPT-IM/backend/logic/service"
+	"ChatGPT-IM/backend/pkg/defs"
+	"ChatGPT-IM/backend/pkg/util"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"go-IM/logic/service"
-	"go-IM/pkg/defs"
-	"go-IM/pkg/util"
 	"log"
 	"strconv"
 	"sync"
@@ -75,7 +75,7 @@ func (ctx *ConnContext) SignIn(input *defs.Input) {
 	}
 	userId, _ := strconv.ParseInt(signIn.UserId, 10, 64)
 	deviceId, _ := strconv.ParseInt(signIn.DeviceId, 10, 64)
-	if err := service.AuthService.SignIn(userId, deviceId, signIn.Token, "", 0); err != nil {
+	if err := service2.AuthService.SignIn(userId, deviceId, signIn.Token, "", 0); err != nil {
 		log.Print(err)
 		ctx.Release()
 		return
@@ -101,7 +101,7 @@ func (ctx *ConnContext) Sync(input *defs.Input) {
 		return
 	}
 	seq, _ := strconv.ParseInt(sync.Seq, 10, 64)
-	msgList, err := service.MessageService.ListDeviceMessageBySeq(ctx.UserId, ctx.DeviceId, seq)
+	msgList, err := service2.MessageService.ListDeviceMessageBySeq(ctx.UserId, ctx.DeviceId, seq)
 	var syncOutput defs.SyncOutput
 	if err == nil {
 		messageItems := make([]defs.MessageItem, 0)
@@ -133,7 +133,7 @@ func (ctx *ConnContext) MessageACK(input *defs.Input) {
 		ctx.Release()
 		return
 	}
-	err := service.DeviceAckService.Update(ctx.DeviceId, messageACK.DeviceAck)
+	err := service2.DeviceAckService.Update(ctx.DeviceId, messageACK.DeviceAck)
 	if err != nil {
 		log.Print(err)
 	}
@@ -164,7 +164,7 @@ func (ctx *ConnContext) SendToUser(input *defs.Input) {
 		IsPersist:      true,
 	}
 	// 1.消息持久化 2.查询用户在线设备 3.消费发送给用户设备
-	if err := service.MessageService.Send(input.RequestId, sender, messageReq); err != nil {
+	if err := service2.MessageService.Send(input.RequestId, sender, messageReq); err != nil {
 		log.Print(err)
 		ctx.Release()
 		return
@@ -205,6 +205,6 @@ func (ctx *ConnContext) Release() {
 	// 设备下线
 	if ctx.DeviceId != PreConn {
 		clear(ctx.DeviceId)
-		_ = service.DeviceService.Offline(ctx.DeviceId)
+		_ = service2.DeviceService.Offline(ctx.DeviceId)
 	}
 }
