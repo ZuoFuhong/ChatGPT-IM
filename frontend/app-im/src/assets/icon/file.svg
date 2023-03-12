@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="115px" height="128px" viewBox="0 0 115 128" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>file</title>
+    <desc>Created with Sketch.</desc>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="画板" transform="translate(-651.000000, -47.000000)" stroke="#3F3F3F" stroke-width="4">
+            <g id="file" transform="translate(653.000000, 49.000000)">
+                <path d="M8,0 L32.8184182,0 L32.8184182,0 L48.4363636,22.0204807 L103,22.0204807 C107.418278,22.0204807 111,25.6022027 111,30.0204807 L111,116 C111,120.418278 107.418278,124 103,124 L8,124 C3.581722,124 5.41083001e-16,120.418278 0,116 L0,53.0794682 L0,53.0794682 L0,8 C-5.41083001e-16,3.581722 3.581722,8.11624501e-16 8,0 Z" id="矩形"></path>
+                <line x1="0" y1="53.5" x2="111" y2="53.5" id="路径-3"></line>
+            </g>
+        </g>
+    </g>
+</svg>

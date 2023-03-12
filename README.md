@@ -13,12 +13,14 @@
 - 5.`A` 新增接入 OpenAI 云端 API 服务，实现类似 ChatGPT 的聊天机器人，可以回答各种问题
 - 6.`A` 新增接入 OpenAI 最新发布的 Chat completion API，回答问题像 ChatGPT 一样灵性
 - 7.`A` 新增接入 OpenAI 最新发布的 Whisper API 实现语音转文字
+- 8.`A` 新增 ChatGPT 桌面端，使用 tauri 框架构建的桌面应用程序
 
 ### 演示 Demo
 
 **B站视频**：https://www.bilibili.com/video/BV1eM41147jN/
 
-![封面](./doc/im/cover-openai.jpg)
+**Web 网页端**
+![web-im](./doc/im/cover-openai.jpg)
 
 测试数据：
 
@@ -33,13 +35,37 @@ http://localhost:63342/go-IM/example/web-im/index.html?uid=1629770216865009664
 http://localhost:63342/go-IM/example/web-im/index.html?uid=1629769779311022080
 ```
 
+**桌面应用**
+
+![app-im](./doc/im/desktop-app.jpg)
+
 ### 开发
 
+1.Server 端
+
 ```sh
-# 启动 Server 端
 cd backend
 # 默认运行在 127.0.0.1:8080
 go run main.go
+```
+
+2.Web 端
+
+```sh
+cd frontend/web-im
+
+# 浏览器打开 index.html
+http://localhost:63342/go-IM/example/web-im/index.html?uid=1629770111088857088
+```
+
+3.桌面端
+
+```sh
+# 开发模式
+cargo tauri dev
+
+# 构建安装包
+cargo tauri build
 ```
 
 ### 博客
