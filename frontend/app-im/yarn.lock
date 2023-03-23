@@ -7612,6 +7612,11 @@ readdirp@~3.6.0:
   dependencies:
     picomatch "^2.2.1"
 
+recorder-core@^1.2.23020100:
+  version "1.2.23020100"
+  resolved "https://registry.yarnpkg.com/recorder-core/-/recorder-core-1.2.23020100.tgz#135e1119902bb19027862a579c608b64d6497bac"
+  integrity sha512-HUxAPKmP0Q5Rd0Z57ufKGyJmUAB9cZPfe8vg4mckSDwx1JFJ+tln8i+jnGSCOjlKr6tC2UL4ifcWwa7w0jf5pA==
+
 redent@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/redent/-/redent-3.0.0.tgz#e557b7998316bb53c9f1f56fa626352c6963059f"
