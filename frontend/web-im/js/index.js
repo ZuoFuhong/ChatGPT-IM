@@ -14,8 +14,8 @@ let app = new Vue({
         messageCache: {},
         wsclient: null,
         seq: "0",
-        audioDevice: null,
-        recording: false
+        recording: false,
+        recorder: null
     },
     async created() {
         let userId = getQueryVariable("uid")
@@ -33,40 +33,40 @@ let app = new Vue({
     methods: {
         // 初始化音频驱动
         async initAudioDevice() {
-            const that = this
-            let audioDevice = new AudioRecorder()
-            audioDevice.getAudioRecorderDevice()
-            // 注册回调-音频转文本
-            audioDevice.addOnStopCallback(function(blob) {
-                var data = new FormData()
-                data.append('model', 'whisper-1')
-                data.append('file', blob, 'translate_tts.mp3')
-
-                const xhr = new XMLHttpRequest()
-                // xhr.withCredentials = true
-                xhr.addEventListener('readystatechange', function() {
-                    if(this.readyState === 4) {
-                        const rsp = JSON.parse(this.responseText)
-                        // 发送转录的文本
-                        that.wsClientSendToUser(rsp.text)
-                    }
-                })
-                xhr.open('POST', config.BASE_URL + '/audio/transcriptions')
-                xhr.send(data)
+            var rec = Recorder();
+            rec.open(function(){
+                console.log("open audio device success.")
             })
-            this.audioDevice = audioDevice;
+            this.recorder = rec;
         },
         // 录制音频
         audioRecord() {
             if (!this.recording) {
                 // 开始录制
                 console.log('start audio record')
-                this.audioDevice.startRecord()
+                this.recorder.start();
                 this.recording = true
             } else {
                 // 停止录制
                 console.log('stop audio record')
-                this.audioDevice.stopRecord()
+                var that = this;
+                this.recorder.stop(function(blob,duration){
+                    var data = new FormData()
+                    data.append('model', 'whisper-1')
+                    data.append('file', blob, 'translate_tts.mp3')
+
+                    const xhr = new XMLHttpRequest()
+                    // xhr.withCredentials = true
+                    xhr.addEventListener('readystatechange', function() {
+                        if(this.readyState === 4) {
+                            const rsp = JSON.parse(this.responseText)
+                            // 发送转录的文本
+                            that.wsClientSendToUser(rsp.text)
+                        }
+                    })
+                    xhr.open('POST', config.BASE_URL + '/audio/transcriptions')
+                    xhr.send(data)
+                })
                 this.recording = false
             }
         },
